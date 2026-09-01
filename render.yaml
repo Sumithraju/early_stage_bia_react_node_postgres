@@ -1,0 +1,54 @@
+# Render Blueprint for the Early-Stage BIA app.
+#
+# It provisions two resources:
+#   1. bia-postgres  - managed PostgreSQL 16 holding the BIA schema.
+#   2. early-stage-bia - one Node web service that serves BOTH the Express API
+#      under /api and the compiled React bundle for every other path.
+#
+# Serving the client from the API service keeps the browser on a single origin,
+# so there is no CORS setup and no need to bake a cross-service API hostname
+# into the Vite build (Render cannot interpolate a service URL into an env var).
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repository.
+
+databases:
+  - name: bia-postgres
+    databaseName: bia
+    user: bia
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    # Internal connections from the web service below are always permitted.
+    # To reach this database with psql from your laptop, replace [] with
+    # - source: 0.0.0.0/0
+    #   description: everywhere
+    ipAllowList: []
+
+services:
+  - type: web
+    name: early-stage-bia
+    runtime: node
+    plan: free
+    region: oregon
+    # Installs both workspaces and produces client/dist.
+    buildCommand: npm run build
+    # Applies sql/schema.sql + sql/seed.sql, then serves API and client.
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bia-postgres
+          property: connectionString
+      # Run schema/seed on boot; Render's database starts empty.
+      - key: RUN_MIGRATIONS
+        value: "true"
+      # The nightly public-data cron is off by default: a free instance sleeps
+      # when idle, so the schedule would not fire reliably anyway.
+      - key: ENABLE_PUBLIC_SYNC
+        value: "false"

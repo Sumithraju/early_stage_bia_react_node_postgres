@@ -1,0 +1,16 @@
+{
+  "name": "early-stage-bia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Early-stage budget impact analysis (BIA) app: React client, Express API, PostgreSQL.",
+  "scripts": {
+    "build": "npm install --prefix server && npm install --prefix client && npm --prefix client run build",
+    "start": "node server/src/index.js",
+    "migrate": "node server/src/db/migrate.js",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
