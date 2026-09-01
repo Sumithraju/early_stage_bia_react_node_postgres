@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { calculateBudgetImpact } from "./lib/biaEngine.js";
 import { getDefaultModel } from "./lib/defaultModel.js";
+import { defaultModelFor } from "./lib/diseases.js";
+import { clearRuns, deleteRun, loadRuns, saveRun } from "./lib/runs.js";
+import Assistant from "./components/Assistant.jsx";
 import { clearSession, loadSession, saveSession } from "./lib/util.js";
 import { downloadTemplate, importWorkbook } from "./lib/excel.js";
 import Results from "./pages/Results.jsx";
@@ -23,11 +26,29 @@ export default function App() {
   const [stepIndex, setStepIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [runs, setRuns] = useState(loadRuns);
   const fileRef = useRef(null);
 
   useEffect(() => saveSession(model), [model]);
 
   const set = (patch) => setModel((m) => ({ ...m, ...patch }));
+
+  // Switching disease replaces the whole model with that disease's defaults,
+  // rather than patching fields, so comparators, outcomes and subgroups all
+  // move together.
+  const onDisease = (code) => {
+    setModel(defaultModelFor(code));
+    setNotice({ kind: "info", text: `Loaded default ${code === "T2D" ? "type 2 diabetes" : "obesity"} model.` });
+  };
+
+  const onSaveRun = () => {
+    if (!result) return;
+    const next = saveRun(model, result);
+    setRuns(next);
+    setNotice({ kind: "info", text: `Saved ${next.at(-1).label}. Compare it on the Runs tab.` });
+  };
+  const onDeleteRun = (id) => setRuns(deleteRun(id));
+  const onClearRuns = () => setRuns(clearRuns());
 
   // Recomputed on every keystroke: the engine is pure and runs in the browser,
   // so there is no server round-trip to debounce.
@@ -60,6 +81,8 @@ export default function App() {
 
   const reset = () => {
     clearSession();
+    clearRuns();
+    setRuns([]);
     setModel(getDefaultModel());
     setStepIndex(0);
     setShowResults(false);
@@ -127,7 +150,14 @@ export default function App() {
 
         {showResults ? (
           result ? (
-            <Results model={model} result={result} />
+            <Results
+              model={model}
+              result={result}
+              runs={runs}
+              onSaveRun={onSaveRun}
+              onDeleteRun={onDeleteRun}
+              onClearRuns={onClearRuns}
+            />
           ) : (
             <div className="alert">{error}</div>
           )
@@ -138,7 +168,7 @@ export default function App() {
               <p>{step.blurb}</p>
             </div>
 
-            <step.Body model={model} set={set} />
+            <step.Body model={model} set={set} onDisease={onDisease} />
 
             <div className="nav-row">
               <button
@@ -167,6 +197,8 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <Assistant model={model} result={result} />
     </div>
   );
 }
