@@ -1,4 +1,4 @@
-import { OBESITY_SUBGROUPS } from "../lib/defaultModel.js";
+import { DISEASE_LIST, DISEASES, subgroupsFor } from "../lib/diseases.js";
 import { newId, count, money } from "../lib/util.js";
 import Funnel, { buildFunnel } from "../components/Funnel.jsx";
 import Comparators from "../components/Comparators.jsx";
@@ -14,7 +14,7 @@ import {
 /* Therapy area comes first: the review noted the disease was buried at
    step 5, after the user had already entered numbers for it. Time horizon
    and perspective sit here too, above anything cost-related.            */
-export function StepTherapy({ model, set }) {
+export function StepTherapy({ model, set, onDisease }) {
   return (
     <>
       <div className="section-label">Therapy area</div>
@@ -23,15 +23,15 @@ export function StepTherapy({ model, set }) {
           label="Therapy area"
           value={model.therapyArea}
           onChange={(v) => set({ therapyArea: v })}
-          options={["Cardiometabolic"]}
+          options={[...new Set(DISEASE_LIST.map(() => "Cardiometabolic"))]}
           hint="This build is scoped to one area"
         />
         <SelectField
           label="Disease"
-          value={model.diseaseName}
-          onChange={(v) => set({ diseaseName: v })}
-          options={["Obesity / chronic weight management"]}
-          hint="Subgroups below narrow the population"
+          value={model.diseaseCode}
+          onChange={(v) => onDisease && onDisease(v)}
+          options={DISEASE_LIST.map((d) => ({ value: d.code, label: d.label }))}
+          hint="Switching reloads that disease's defaults"
         />
         <SelectField
           label="Subgroup"
@@ -39,7 +39,7 @@ export function StepTherapy({ model, set }) {
           onChange={(v) => set({ subgroup: v })}
           options={[
             { value: "ALL", label: "All eligible patients" },
-            ...OBESITY_SUBGROUPS.map((s) => ({ value: s.code, label: s.label })),
+            ...subgroupsFor(model.diseaseCode).map((sg) => ({ value: sg.code, label: sg.label })),
           ]}
         />
       </div>
@@ -128,7 +128,7 @@ export function StepPopulation({ model, set }) {
       <div className="section-label">Epidemiology</div>
       <div className="grid">
         <PercentField
-          label="Obesity prevalence"
+          label={`${model.diseaseName} prevalence`}
           value={model.prevalence}
           onChange={(v) => set({ prevalence: v })}
         />
@@ -147,13 +147,21 @@ export function StepPopulation({ model, set }) {
       <div className="section-label">Eligibility</div>
       <div className="grid">
         <NumberField
-          label="BMI threshold"
+          label={
+            (DISEASES[model.diseaseCode]?.eligibilityUnit || "BMI") === "HbA1c"
+              ? "HbA1c threshold"
+              : "BMI threshold"
+          }
           value={model.bmiThreshold}
           step={0.5}
-          min={20}
+          min={0}
           max={60}
           onChange={(v) => set({ bmiThreshold: v })}
-          suffix="kg/m²"
+          suffix={
+            (DISEASES[model.diseaseCode]?.eligibilityUnit || "BMI") === "HbA1c"
+              ? "%"
+              : "kg/m²"
+          }
         />
         <TextField
           label="Comorbidity requirement"
