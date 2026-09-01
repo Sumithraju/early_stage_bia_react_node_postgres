@@ -4,6 +4,8 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { count, money, moneyShort, pct } from "../lib/util.js";
+import { exportReport } from "../lib/pdf.js";
+import Icon from "../components/Icons.jsx";
 
 /* Validated categorical series - see the palette check in the build notes.
    The brand indigo/violet pair fails CVD separation as adjacent series, so
@@ -51,6 +53,18 @@ function Legend2({ items }) {
 
 export default function Results({ model, result, runs = [], onSaveRun, onDeleteRun, onClearRuns }) {
   const [tab, setTab] = useState("impact");
+  const [exporting, setExporting] = useState(false);
+
+  const onExport = async () => {
+    setExporting(true);
+    try {
+      await exportReport(model, result);
+    } catch (e) {
+      alert("Could not generate the PDF: " + e.message);
+    } finally {
+      setExporting(false);
+    }
+  };
   const cur = model.currency;
   const s = result.summary;
   const increases = s.netBudgetImpactTotal >= 0;
@@ -86,20 +100,23 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
       </div>
 
       <div className="tabs" style={{ alignItems: "center" }}>
-        <button className={`tab${tab === "impact" ? " active" : ""}`} onClick={() => setTab("impact")}>
-          Budget impact
+        <button className={`tab${tab === "impact" ? " active" : ""}`} onClick={() => setTab("impact")} title="Net impact, cost per patient and the year-by-year table">
+          <Icon name="budget" size={15} /> Budget impact
         </button>
-        <button className={`tab${tab === "scenarios" ? " active" : ""}`} onClick={() => setTab("scenarios")}>
-          Scenarios
+        <button className={`tab${tab === "scenarios" ? " active" : ""}`} onClick={() => setTab("scenarios")} title="Budget impact under low, base and high uptake">
+          <Icon name="scenarios" size={15} /> Scenarios
         </button>
-        <button className={`tab${tab === "clinical" ? " active" : ""}`} onClick={() => setTab("clinical")}>
-          Clinical outcomes
+        <button className={`tab${tab === "clinical" ? " active" : ""}`} onClick={() => setTab("clinical")} title="Events avoided and medical costs offset">
+          <Icon name="clinical" size={15} /> Clinical outcomes
         </button>
-        <button className={`tab${tab === "runs" ? " active" : ""}`} onClick={() => setTab("runs")}>
-          Runs{runs.length ? ` (${runs.length})` : ""}
+        <button className={`tab${tab === "runs" ? " active" : ""}`} onClick={() => setTab("runs")} title="Compare saved runs side by side">
+          <Icon name="runs" size={15} /> Runs{runs.length ? ` (${runs.length})` : ""}
         </button>
         <span style={{ flex: 1 }} />
-        <button className="btn primary sm" onClick={onSaveRun} style={{ marginBottom: 6 }}>
+        <button className="btn sm" onClick={onExport} disabled={exporting} title="Download a formatted PDF report of these results" style={{ marginBottom: 6, marginRight: 8 }}>
+          <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Export PDF"}
+        </button>
+        <button className="btn primary sm" onClick={onSaveRun} title="Snapshot the current inputs and outputs for comparison" style={{ marginBottom: 6 }}>
           + Save run
         </button>
       </div>

@@ -4,6 +4,7 @@ import { getDefaultModel } from "./lib/defaultModel.js";
 import { defaultModelFor } from "./lib/diseases.js";
 import { clearRuns, deleteRun, loadRuns, saveRun } from "./lib/runs.js";
 import Assistant from "./components/Assistant.jsx";
+import Icon from "./components/Icons.jsx";
 import { clearSession, loadSession, saveSession } from "./lib/util.js";
 import { downloadTemplate, importWorkbook } from "./lib/excel.js";
 import Results from "./pages/Results.jsx";
@@ -13,12 +14,12 @@ import {
 } from "./steps/Steps.jsx";
 
 const STEPS = [
-  { id: "therapy",   label: "Therapy area", title: "Therapy area and perspective", blurb: "Start by fixing what is being modelled, for whom, and over how long.", Body: StepTherapy },
-  { id: "population",label: "Population",   title: "Population and eligibility",   blurb: "Everything that narrows covered lives down to treatable patients.",      Body: StepPopulation },
-  { id: "current",   label: "Current care", title: "Current care comparators",     blurb: "What these patients receive today, and what it costs.",                 Body: StepComparators },
-  { id: "new",       label: "Intervention", title: "New intervention",             blurb: "The drug or device being introduced, and its price.",                   Body: StepIntervention },
-  { id: "uptake",    label: "Uptake",       title: "Uptake and treatment behaviour", blurb: "How fast it is adopted, and how well patients stay on it.",           Body: StepUptake },
-  { id: "outcomes",  label: "Outcomes",     title: "Clinical outcomes",            blurb: "Events the intervention prevents, and what each one costs.",            Body: StepOutcomes },
+  { id: "therapy",   icon: "therapy",      label: "Therapy area", title: "Therapy area and perspective", blurb: "Start by fixing what is being modelled, for whom, and over how long.", Body: StepTherapy },
+  { id: "population",icon: "population",   label: "Population",   title: "Population and eligibility",   blurb: "Everything that narrows covered lives down to treatable patients.",      Body: StepPopulation },
+  { id: "current",   icon: "care",         label: "Current care", title: "Current care comparators",     blurb: "What these patients receive today, and what it costs.",                 Body: StepComparators },
+  { id: "new",       icon: "intervention", label: "Intervention", title: "New intervention",             blurb: "The drug or device being introduced, and its price.",                   Body: StepIntervention },
+  { id: "uptake",    icon: "uptake",       label: "Uptake",       title: "Uptake and treatment behaviour", blurb: "How fast it is adopted, and how well patients stay on it.",           Body: StepUptake },
+  { id: "outcomes",  icon: "outcomes",     label: "Outcomes",     title: "Clinical outcomes",            blurb: "Events the intervention prevents, and what each one costs.",            Body: StepOutcomes },
 ];
 
 export default function App() {
@@ -105,25 +106,28 @@ export default function App() {
           ref={fileRef} type="file" accept=".xlsx,.xls"
           style={{ display: "none" }} onChange={onImport}
         />
-        <button className="btn sm" onClick={() => fileRef.current?.click()}>
+        <button className="btn sm" onClick={() => fileRef.current?.click()} title="Load inputs from an Excel workbook">
           Import Excel
         </button>
-        <button className="btn sm" onClick={() => { downloadTemplate(model); }}>
+        <button className="btn sm" onClick={() => { downloadTemplate(model); }} title="Download an Excel template pre-filled with the current model">
           Template
         </button>
-        <button className="btn ghost sm" onClick={reset}>Reset</button>
+        <button className="btn ghost sm" onClick={reset} title="Clear everything and reload the default model">Reset</button>
       </header>
 
       <nav className="stepper">
         {STEPS.map((s, i) => (
           <button
             key={s.id}
+            title={s.blurb}
             className={`step-btn${i === stepIndex && !showResults ? " active" : ""}${
               i < stepIndex ? " done" : ""
             }`}
             onClick={() => { setStepIndex(i); setShowResults(false); }}
           >
-            <span className="num">{i + 1}</span>
+            <span className="num">
+              {i < stepIndex ? <Icon name="check" size={13} /> : <Icon name={s.icon} size={14} />}
+            </span>
             {s.label}
           </button>
         ))}
@@ -131,8 +135,9 @@ export default function App() {
           className={`step-btn${showResults ? " active" : ""}`}
           onClick={() => setShowResults(true)}
           disabled={!result}
+          title="Budget impact, scenarios, clinical outcomes and saved runs"
         >
-          <span className="num">→</span>
+          <span className="num"><Icon name="results" size={14} /></span>
           Results
         </button>
       </nav>
