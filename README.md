@@ -71,6 +71,63 @@ Public source records are versioned. A user override does not destroy the public
 
 ---
 
+## Deploy to Render
+
+The repository ships a Render Blueprint (`render.yaml`). It provisions:
+
+| Resource | Type | Purpose |
+| --- | --- | --- |
+| `bia-postgres` | PostgreSQL 16 (free) | BIA schema and reference data |
+| `early-stage-bia` | Node web service (free) | Express API on `/api` **and** the compiled React bundle on every other path |
+
+The client is served by the API service, so the browser stays on one origin:
+no CORS configuration, and no API hostname has to be baked into the Vite build.
+
+### Steps
+
+1. Push this branch to GitHub.
+2. In Render: **New → Blueprint**, then select this repository.
+3. Render reads `render.yaml`, shows the database plus the web service, and you
+   confirm with **Apply**.
+4. Wait for the first deploy. On boot the service applies `sql/schema.sql` and
+   `sql/seed.sql` to the new database automatically.
+5. Open the service URL. `"/api/health"` should report `database: connected`.
+
+`DATABASE_URL` is wired from the database automatically — you do not paste it in.
+
+### Build and start commands
+
+```text
+build: npm run build     # installs server + client deps, runs vite build
+start: npm start         # runs migrations, then serves API + client
+```
+
+### Environment variables
+
+| Variable | Set by | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | Blueprint | Internal connection string for `bia-postgres` |
+| `NODE_VERSION` | Blueprint | `20` |
+| `RUN_MIGRATIONS` | Blueprint | `true` — applies schema/seed on boot |
+| `ENABLE_PUBLIC_SYNC` | Blueprint | `false` — a free instance sleeps, so the nightly cron would not fire reliably |
+| `CLIENT_ORIGIN` | unset | Only needed if the client is hosted separately; accepts a comma-separated list |
+| `DATABASE_SSL` | unset | TLS is chosen from the database host; set `true`/`false` to force it |
+
+### Things worth knowing
+
+- **Free Postgres expires after 30 days.** Render deletes it unless you upgrade
+  to a paid instance. Export anything you need before then.
+- **Free web services sleep after 15 minutes idle**, so the first request after
+  a pause takes roughly 50 seconds while the instance wakes.
+- **Region** is `oregon` in `render.yaml`. Change it on both the database and the
+  service — they must match for the internal connection string to resolve.
+- **Branch**: Render deploys the repository's default branch unless you pick a
+  different one in the Blueprint settings.
+- **Uploaded workbooks are parsed and deleted**; the disk is ephemeral, so
+  imported data lives in Postgres rather than on the instance.
+
+---
+
 ## Quick start with Docker
 
 ```bash
@@ -95,7 +152,8 @@ Create:
 CREATE DATABASE bia;
 ```
 
-Then run:
+The server applies `sql/schema.sql` and `sql/seed.sql` itself on startup, so no
+further setup is needed. To apply them by hand instead:
 
 ```bash
 psql -d bia -f sql/schema.sql
