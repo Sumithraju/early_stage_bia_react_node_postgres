@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { query } from "./db/query.js";
+import { databaseConfigured } from "./db/pool.js";
 import { runMigrations } from "./db/migrate.js";
 import { modelRouter } from "./routes/model.js";
 import { importRouter } from "./routes/import.js";
@@ -55,16 +56,28 @@ app.use(
 );
 app.use(express.json({ limit: "5mb" }));
 
-app.get("/api/health", async (req, res, next) => {
+app.get("/api/health", async (req, res) => {
+  if (!databaseConfigured) {
+    return res.json({
+      status: "ok",
+      database: "not configured",
+      note: "The BIET interface computes in the browser and needs no database.",
+      serverTime: new Date().toISOString(),
+    });
+  }
+
   try {
     const db = await query("SELECT now() as now");
+    res.json({ status: "ok", database: "connected", serverTime: db.rows[0].now });
+  } catch (error) {
+    // Reachability is a data-layer problem, not a reason to report the served
+    // UI as down, so this stays a 200 with a degraded database field.
     res.json({
       status: "ok",
-      database: "connected",
-      serverTime: db.rows[0].now,
+      database: "unavailable",
+      error: error.message,
+      serverTime: new Date().toISOString(),
     });
-  } catch (error) {
-    next(error);
   }
 });
 
@@ -103,8 +116,9 @@ async function start() {
     try {
       await runMigrations();
     } catch (error) {
-      console.error("Database migration failed:", error.message);
-      process.exit(1);
+      // Never fatal: the interface is served from client/dist and works
+      // whether or not the optional REST API has a database behind it.
+      console.error("Database migration failed (continuing):", error.message);
     }
   }
 
