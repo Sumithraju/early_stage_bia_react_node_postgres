@@ -114,7 +114,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
         </button>
         <span style={{ flex: 1 }} />
         <button className="btn sm" onClick={onExport} disabled={exporting} title="Download a formatted PDF report of these results" style={{ marginBottom: 6, marginRight: 8 }}>
-          <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Export PDF"}
+          <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Save as PDF"}
         </button>
         <button className="btn primary sm" onClick={onSaveRun} title="Snapshot the current inputs and outputs for comparison" style={{ marginBottom: 6 }}>
           + Save run
@@ -124,14 +124,16 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
       {tab === "impact" && (
         <>
           <div className="kpis" style={{ marginBottom: 16 }}>
-            <Kpi label="Current care, total" value={moneyShort(s.currentCostTotal, cur)} />
-            <Kpi label="With intervention" value={moneyShort(s.newCostTotal, cur)} />
+            <Kpi label="Without intervention" value={moneyShort(s.currentCostTotal, cur)} sub="current care, total" />
+            <Kpi label="With intervention" value={moneyShort(s.newCostTotal, cur)} sub="total with new drug" />
             <Kpi
               label="Net impact"
               value={moneyShort(s.netBudgetImpactTotal, cur)}
               tone={increases ? "neg" : "pos"}
               sub={increases ? "cost increase" : "saving"}
             />
+            <Kpi label="Affordability — PMPM" value={money(s.year1PMPM, cur)} sub="per member / month (Y1)" />
+            <Kpi label="Affordability — PMPY" value={money(s.year1PMPY, cur)} sub="per member / year (Y1)" />
             <Kpi label="Patients treated" value={count(s.peakTreatedPatients)} sub="at peak year" />
             <Kpi label="Cost per treated patient" value={money(s.costPerTreatedPatient, cur)} sub="per year" />
             <Kpi
@@ -200,7 +202,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
               <table>
                 <thead>
                   <tr>
-                    <th>Year</th><th>Patients treated</th><th>Current care</th>
+                    <th>Year</th><th>Patients treated</th><th>Without intervention</th>
                     <th>With intervention</th><th>Net impact</th><th>PMPM</th>
                   </tr>
                 </thead>
