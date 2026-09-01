@@ -3,6 +3,7 @@ import {
   answerLocally, askQwen, buildContext,
   loadQwenSettings, saveQwenSettings,
 } from "../lib/assistant.js";
+import Icon from "./Icons.jsx";
 
 /**
  * Floating help assistant. Opens from a button bottom-right. Answers from the
@@ -66,10 +67,10 @@ export default function Assistant({ model, result }) {
       <button
         className="assistant-fab"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Open assistant"
-        title="BIET assistant"
+        aria-label={open ? "Close assistant" : "Open assistant"}
+        title="BIET assistant — ask about your model"
       >
-        {open ? "×" : "Ask"}
+        {open ? <span className="fab-x">×</span> : <Icon name="chat" size={24} />}
       </button>
 
       {open && (

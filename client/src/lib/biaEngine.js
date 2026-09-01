@@ -117,9 +117,12 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
       num(input.coveredPopulation) *
       Math.pow(1 + num(input.annualPopulationGrowth), y - 1);
 
+    // Prevalence is the existing (stock) pool; incidence adds new cases (flow)
+    // each subsequent year. Year 1 is unaffected by incidence.
     const prevalence = clamp01(
       num(input.prevalence) *
-        Math.pow(1 + num(input.annualPrevalenceGrowth), y - 1)
+        Math.pow(1 + num(input.annualPrevalenceGrowth), y - 1) +
+        num(input.annualIncidence) * (y - 1)
     );
 
     const eligiblePatients =
@@ -198,6 +201,7 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
       netBudgetImpact,
       cumulativeImpact,
       pmpm: population > 0 ? netBudgetImpact / population / 12 : 0,
+      pmpy: population > 0 ? netBudgetImpact / population : 0,
       costPerTreatedPatient:
         newPatients > 0 ? newInterventionTreatment / newPatients : 0,
       eventsAvoided: yearEventsAvoided,
@@ -286,6 +290,11 @@ export function calculateBudgetImpact(input) {
     year1PMPM: annualResults[0]?.pmpm || 0,
     averagePMPM:
       annualResults.reduce((s, r) => s + r.pmpm, 0) / annualResults.length,
+    // Affordability: per-member-per-year is PMPM x 12, the figure payers use
+    // to weigh impact against an annual budget per covered life.
+    year1PMPY: annualResults[0]?.pmpy || 0,
+    averagePMPY:
+      annualResults.reduce((s, r) => s + r.pmpy, 0) / annualResults.length,
     treatedPatientYears,
     newInterventionPatientYears: treatedPatientYears,
     peakTreatedPatients: Math.max(
