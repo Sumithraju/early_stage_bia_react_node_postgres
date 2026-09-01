@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { pool } from "./pool.js";
+import { pool, databaseConfigured } from "./pool.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -57,6 +57,11 @@ async function alreadySeeded(client) {
 }
 
 export async function runMigrations() {
+  if (!databaseConfigured) {
+    console.log("[migrate] No DATABASE_URL - skipping (UI does not need one).");
+    return;
+  }
+
   const sqlDir = resolveSqlDir();
 
   if (!sqlDir) {

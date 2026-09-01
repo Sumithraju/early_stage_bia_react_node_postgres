@@ -9,6 +9,8 @@ export function getDefaultModel() {
     modelName: "Obesity Early-Stage BIA",
 
     // --- Setup -------------------------------------------------------------
+    therapyArea: "Cardiometabolic",
+    subgroup: "ALL",
     diseaseCode: "OBESITY",
     diseaseName: "Obesity / chronic weight management",
     countryCode: "IND",
