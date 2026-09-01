@@ -18,7 +18,10 @@ services:
       retries: 20
 
   server:
-    build: ./server
+    # Built from the repository root so sql/ is inside the build context.
+    build:
+      context: .
+      dockerfile: server/Dockerfile
     environment:
       PORT: 4000
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bia
