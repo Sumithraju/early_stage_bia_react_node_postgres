@@ -309,10 +309,14 @@ tfoot td { font-weight: 650; border-top: 1px solid var(--border-strong); border-
 .muted { color: var(--ink-muted); }
 .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
 .tab {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 15px; border: none; background: none; cursor: pointer;
   font: inherit; font-size: 13.5px; color: var(--ink-muted);
   border-bottom: 2px solid transparent; margin-bottom: -1px; transition: .12s;
 }
+.tab svg { opacity: .8; }
+.btn svg { flex-shrink: 0; }
+.step-btn .num svg { display: block; }
 .tab:hover { color: var(--ink); }
 .tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
 
