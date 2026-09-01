@@ -90,13 +90,13 @@ export async function exportReport(model, result) {
 
   /* ---- KPI grid ---- */
   const kpis = [
-    ["Current care, total", pdfShort(s.currentCostTotal, cur)],
+    ["Without intervention", pdfShort(s.currentCostTotal, cur)],
     ["With intervention", pdfShort(s.newCostTotal, cur)],
-    ["Year 1 PMPM", pdfMoney(s.year1PMPM, cur)],
+    ["Affordability - PMPM (Y1)", pdfMoney(s.year1PMPM, cur)],
+    ["Affordability - PMPY (Y1)", pdfMoney(s.year1PMPY, cur)],
     ["Patients treated (peak)", count(s.peakTreatedPatients)],
     ["Cost / treated patient", pdfMoney(s.costPerTreatedPatient, cur)],
     ["Break-even price", s.breakEvenAnnualPrice == null ? "n/a" : pdfMoney(s.breakEvenAnnualPrice, cur)],
-    ["Events avoided", count(s.eventsAvoidedTotal)],
     ["Hospital cost avoided", pdfShort(s.hospitalCostAvoidedTotal, cur)],
   ];
   y += 44;
@@ -150,7 +150,7 @@ export async function exportReport(model, result) {
   doc.autoTable({
     startY: y,
     margin: { left: M, right: M },
-    head: [["Year", "Patients treated", "Current care", "With intervention", "Net impact", "PMPM"]],
+    head: [["Year", "Patients treated", "Without intervention", "With intervention", "Net impact", "PMPM"]],
     body: years.map((r) => [
       r.calendarYear,
       count(r.newInterventionPatients),

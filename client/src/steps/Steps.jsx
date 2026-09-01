@@ -133,6 +133,12 @@ export function StepPopulation({ model, set }) {
           onChange={(v) => set({ prevalence: v })}
         />
         <PercentField
+          label="Annual incidence"
+          hint="New cases each year, added to the pool"
+          value={model.annualIncidence}
+          onChange={(v) => set({ annualIncidence: v })}
+        />
+        <PercentField
           label="Annual prevalence growth"
           value={model.annualPrevalenceGrowth}
           onChange={(v) => set({ annualPrevalenceGrowth: v })}

@@ -45,6 +45,7 @@ export const DISEASES = {
       modelName: "Obesity Early-Stage BIA",
       diseaseName: "Obesity / chronic weight management",
       prevalence: 0.25,
+      annualIncidence: 0.005,
       diagnosisRate: 0.7,
       bmiThreshold: 30,
       comorbidityRequirement: "At least one obesity-related comorbidity",
@@ -93,6 +94,7 @@ export const DISEASES = {
       modelName: "Type 2 Diabetes Early-Stage BIA",
       diseaseName: "Type 2 diabetes",
       prevalence: 0.1,          // ~10% adult T2D prevalence in India
+      annualIncidence: 0.007,   // new diagnoses per year
       diagnosisRate: 0.55,      // roughly half remain undiagnosed
       bmiThreshold: 7,          // reused field = HbA1c treatment threshold (%)
       comorbidityRequirement: "Inadequate glycaemic control on current therapy",
