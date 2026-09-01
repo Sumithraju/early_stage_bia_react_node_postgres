@@ -5,9 +5,12 @@ dotenv.config();
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is required.");
-}
+/**
+ * The client is self-contained and needs no database, so a missing
+ * DATABASE_URL degrades to "API disabled" rather than killing the process and
+ * taking the served UI down with it.
+ */
+export const databaseConfigured = Boolean(process.env.DATABASE_URL);
 
 /**
  * Render's managed Postgres needs TLS when it is reached over its *external*
@@ -49,14 +52,16 @@ function resolveSsl(connectionString) {
   return { rejectUnauthorized: false };
 }
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: resolveSsl(process.env.DATABASE_URL),
-  max: Number(process.env.PG_POOL_MAX || 10),
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 15_000,
-});
+export const pool = databaseConfigured
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: resolveSsl(process.env.DATABASE_URL),
+      max: Number(process.env.PG_POOL_MAX || 10),
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 15_000,
+    })
+  : null;
 
-pool.on("error", (err) => {
+pool?.on("error", (err) => {
   console.error("Unexpected PostgreSQL error", err);
 });
