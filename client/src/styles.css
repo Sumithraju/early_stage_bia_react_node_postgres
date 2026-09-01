@@ -338,6 +338,8 @@ tfoot td { font-weight: 650; border-top: 1px solid var(--border-strong); border-
   box-shadow: var(--shadow-lg); transition: transform .12s;
 }
 .assistant-fab:hover { transform: translateY(-2px); }
+.assistant-fab .fab-x { font-size: 26px; line-height: 1; }
+.assistant-fab svg { display: block; }
 
 .assistant-panel {
   position: fixed; right: 22px; bottom: 88px; z-index: 40;
