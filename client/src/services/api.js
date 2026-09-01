@@ -1,7 +1,10 @@
 import axios from "axios";
 
+// In production the API is served from the same origin as this bundle, so a
+// relative base URL needs no build-time knowledge of the deployed hostname.
+// The Vite dev server sets VITE_API_URL to reach the API on its own port.
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   timeout: 60000,
 });
 

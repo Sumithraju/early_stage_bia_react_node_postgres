@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import os from "os";
 import path from "path";
 import fs from "fs";
 import {
@@ -7,7 +8,13 @@ import {
   persistImportedModel,
 } from "../services/excelImporter.js";
 
-const uploadDir = path.resolve("uploads");
+// Render's disk is ephemeral and the working directory is not guaranteed to be
+// writable, so uploads land in the OS temp dir unless UPLOAD_DIR overrides it.
+// Each file is unlinked in the `finally` block below once it has been parsed.
+const uploadDir = process.env.UPLOAD_DIR
+  ? path.resolve(process.env.UPLOAD_DIR)
+  : path.join(os.tmpdir(), "bia-uploads");
+
 fs.mkdirSync(uploadDir, { recursive: true });
 
 const upload = multer({

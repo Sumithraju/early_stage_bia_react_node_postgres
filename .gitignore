@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Local environment files (never commit real credentials)
+.env
+.env.local
+.env.*.local
+
+# Uploaded / temporary files
+uploads/
+*.log
+npm-debug.log*
+
+# Editor / OS noise
+.DS_Store
+.vscode/
+.idea/
