@@ -49,7 +49,7 @@ function Legend2({ items }) {
   );
 }
 
-export default function Results({ model, result }) {
+export default function Results({ model, result, runs = [], onSaveRun, onDeleteRun, onClearRuns }) {
   const [tab, setTab] = useState("impact");
   const cur = model.currency;
   const s = result.summary;
@@ -85,7 +85,7 @@ export default function Results({ model, result }) {
         </div>
       </div>
 
-      <div className="tabs">
+      <div className="tabs" style={{ alignItems: "center" }}>
         <button className={`tab${tab === "impact" ? " active" : ""}`} onClick={() => setTab("impact")}>
           Budget impact
         </button>
@@ -94,6 +94,13 @@ export default function Results({ model, result }) {
         </button>
         <button className={`tab${tab === "clinical" ? " active" : ""}`} onClick={() => setTab("clinical")}>
           Clinical outcomes
+        </button>
+        <button className={`tab${tab === "runs" ? " active" : ""}`} onClick={() => setTab("runs")}>
+          Runs{runs.length ? ` (${runs.length})` : ""}
+        </button>
+        <span style={{ flex: 1 }} />
+        <button className="btn primary sm" onClick={onSaveRun} style={{ marginBottom: 6 }}>
+          + Save run
         </button>
       </div>
 
@@ -320,6 +327,137 @@ export default function Results({ model, result }) {
           </div>
         </>
       )}
+
+      {tab === "runs" && (
+        <RunsTab
+          runs={runs}
+          model={model}
+          result={result}
+          onDelete={onDeleteRun}
+          onClear={onClearRuns}
+        />
+      )}
     </>
+  );
+}
+
+/* Comparative table of saved runs, newest columns on the right. The live model
+   is shown as a trailing "Current" column so a saved run can be read against
+   what is on screen now. */
+function RunsTab({ runs, model, result, onDelete, onClear }) {
+  const cur = model.currency;
+  const s = result.summary;
+
+  const columns = [
+    ...runs.map((r) => ({ id: r.id, label: r.label, badge: r.n, m: r.metrics, meta: r, saved: true })),
+    {
+      id: "current",
+      label: "Current",
+      badge: "•",
+      current: true,
+      m: {
+        netBudgetImpactTotal: s.netBudgetImpactTotal,
+        year1PMPM: s.year1PMPM,
+        treatedPatientYears: s.treatedPatientYears,
+        peakTreatedPatients: s.peakTreatedPatients,
+        costPerTreatedPatient: s.costPerTreatedPatient,
+        breakEvenAnnualPrice: s.breakEvenAnnualPrice,
+        eventsAvoidedTotal: s.eventsAvoidedTotal,
+        hospitalCostAvoidedTotal: s.hospitalCostAvoidedTotal,
+      },
+      meta: {
+        diseaseName: model.diseaseName,
+        interventionName: model.newIntervention?.treatmentName,
+        interventionPrice: model.newIntervention?.annualDrugCost,
+      },
+    },
+  ];
+
+  if (!runs.length) {
+    return (
+      <div className="card">
+        <div className="runs-empty">
+          <p style={{ fontSize: 15, color: "var(--ink)", marginBottom: 6 }}>No saved runs yet.</p>
+          <p style={{ margin: 0 }}>
+            Click <strong>+ Save run</strong> to snapshot the current inputs and outputs, change a
+            price or the uptake, save again, and compare run 1, run 2, run 3 … side by side here.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const rows = [
+    ["Disease", (c) => c.meta.diseaseName || "—", true],
+    ["Intervention", (c) => c.meta.interventionName || "—", true],
+    ["Annual price", (c) => money(c.meta.interventionPrice || 0, cur), false],
+    ["Net budget impact", (c) => money(c.m.netBudgetImpactTotal, cur), false, "impact"],
+    ["Year 1 PMPM", (c) => money(c.m.year1PMPM, cur), false],
+    ["Patients treated (peak)", (c) => count(c.m.peakTreatedPatients), false],
+    ["Patient-years", (c) => count(c.m.treatedPatientYears), false],
+    ["Cost / treated patient", (c) => money(c.m.costPerTreatedPatient, cur), false],
+    ["Break-even price", (c) => (c.m.breakEvenAnnualPrice == null ? "n/a" : money(c.m.breakEvenAnnualPrice, cur)), false],
+    ["Events avoided", (c) => count(c.m.eventsAvoidedTotal), false],
+    ["Hospital cost avoided", (c) => money(c.m.hospitalCostAvoidedTotal, cur), false],
+  ];
+
+  return (
+    <div className="card">
+      <div className="card-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+        <div>
+          <h2>Run comparison</h2>
+          <p>Each saved run against the model currently on screen.</p>
+        </div>
+        <button className="btn ghost sm danger" onClick={onClear}>Clear all</button>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              {columns.map((c) => (
+                <th key={c.id} className={c.current ? "run-current" : ""}>
+                  <span className="run-col-head">
+                    <span className="run-badge">{c.badge}</span>
+                    {c.label}
+                    {c.saved && (
+                      <button
+                        className="btn danger sm"
+                        style={{ padding: "1px 6px", marginLeft: 4 }}
+                        onClick={() => onDelete(c.id)}
+                        title="Delete run"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, fn, isText, kind]) => (
+              <tr key={label}>
+                <td>{label}</td>
+                {columns.map((c) => {
+                  const val = fn(c);
+                  const impactTone =
+                    kind === "impact"
+                      ? c.m.netBudgetImpactTotal >= 0
+                        ? "var(--negative)"
+                        : "var(--positive)"
+                      : undefined;
+                  return (
+                    <td key={c.id} style={{ color: impactTone, fontWeight: kind === "impact" ? 650 : undefined }}>
+                      {val}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
