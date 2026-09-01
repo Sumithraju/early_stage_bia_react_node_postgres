@@ -1,34 +1,37 @@
 # Render Blueprint for the Early-Stage BIA app.
 #
-# It provisions two resources:
-#   1. bia-postgres  - managed PostgreSQL 16 holding the BIA schema.
-#   2. early-stage-bia - one Node web service that serves BOTH the Express API
-#      under /api and the compiled React bundle for every other path.
+# Provisions ONE Node web service that serves both the Express API under /api
+# and the compiled React bundle on every other path. Keeping the browser on a
+# single origin removes CORS setup and avoids baking a cross-service API
+# hostname into the Vite build (Render cannot interpolate a service URL into an
+# env var).
 #
-# Serving the client from the API service keeps the browser on a single origin,
-# so there is no CORS setup and no need to bake a cross-service API hostname
-# into the Vite build (Render cannot interpolate a service URL into an env var).
+# DATABASE
+# --------
+# This blueprint deliberately does NOT create a database. Render allows only one
+# free-tier PostgreSQL per account, so declaring one here fails with
+# "cannot have more than one active free tier database" when you already have
+# one. Instead, DATABASE_URL is marked `sync: false` and Render prompts for it
+# during the sync -- point it at the database you already have.
+#
+# Where to find the value:
+#   Render Dashboard -> your PostgreSQL instance -> Connect ->
+#   "Internal Database URL"  (starts with postgresql://... and has no dots in
+#   the hostname).
+#
+# IMPORTANT: the Internal URL only resolves when this service and the database
+# are in the SAME region. Check your database's region and make `region:` below
+# match it. If they must differ, use the External Database URL instead and open
+# the database's IP allow list -- TLS is negotiated automatically in that case.
 #
 # Deploy: Render Dashboard -> New -> Blueprint -> pick this repository.
-
-databases:
-  - name: bia-postgres
-    databaseName: bia
-    user: bia
-    plan: free
-    region: oregon
-    postgresMajorVersion: "16"
-    # Internal connections from the web service below are always permitted.
-    # To reach this database with psql from your laptop, replace [] with
-    # - source: 0.0.0.0/0
-    #   description: everywhere
-    ipAllowList: []
 
 services:
   - type: web
     name: early-stage-bia
     runtime: node
     plan: free
+    # Must match your existing database's region for the Internal URL to work.
     region: oregon
     # Installs both workspaces and produces client/dist.
     buildCommand: npm run build
@@ -41,14 +44,33 @@ services:
         value: "20"
       - key: NODE_ENV
         value: production
+      # Render prompts for this during the Blueprint sync. Paste the connection
+      # string of your existing Render PostgreSQL instance (see notes above).
       - key: DATABASE_URL
-        fromDatabase:
-          name: bia-postgres
-          property: connectionString
-      # Run schema/seed on boot; Render's database starts empty.
+        sync: false
+      # Creates the BIA tables and reference data on boot. Safe to re-run: the
+      # schema is replayable and the seed is applied at most once.
       - key: RUN_MIGRATIONS
         value: "true"
       # The nightly public-data cron is off by default: a free instance sleeps
       # when idle, so the schedule would not fire reliably anyway.
       - key: ENABLE_PUBLIC_SYNC
         value: "false"
+
+# To let the blueprint manage its own database instead -- which requires either
+# deleting the existing free database or moving to a paid plan -- restore the
+# block below and change DATABASE_URL above to:
+#
+#       - key: DATABASE_URL
+#         fromDatabase:
+#           name: bia-postgres
+#           property: connectionString
+#
+# databases:
+#   - name: bia-postgres
+#     databaseName: bia
+#     user: bia
+#     plan: free
+#     region: oregon
+#     postgresMajorVersion: "16"
+#     ipAllowList: []

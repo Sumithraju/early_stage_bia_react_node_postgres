@@ -73,27 +73,36 @@ Public source records are versioned. A user override does not destroy the public
 
 ## Deploy to Render
 
-The repository ships a Render Blueprint (`render.yaml`). It provisions:
+The repository ships a Render Blueprint (`render.yaml`). It provisions a single
+Node web service that serves the Express API on `/api` **and** the compiled
+React bundle on every other path. The browser therefore stays on one origin: no
+CORS configuration, and no API hostname has to be baked into the Vite build.
 
-| Resource | Type | Purpose |
-| --- | --- | --- |
-| `bia-postgres` | PostgreSQL 16 (free) | BIA schema and reference data |
-| `early-stage-bia` | Node web service (free) | Express API on `/api` **and** the compiled React bundle on every other path |
-
-The client is served by the API service, so the browser stays on one origin:
-no CORS configuration, and no API hostname has to be baked into the Vite build.
+The blueprint does **not** create a database. Render allows only one free-tier
+PostgreSQL per account, so declaring one fails with *"cannot have more than one
+active free tier database"* if you already have one. `DATABASE_URL` is marked
+`sync: false` and you point it at your existing instance.
 
 ### Steps
 
-1. Push this branch to GitHub.
-2. In Render: **New → Blueprint**, then select this repository.
-3. Render reads `render.yaml`, shows the database plus the web service, and you
-   confirm with **Apply**.
-4. Wait for the first deploy. On boot the service applies `sql/schema.sql` and
-   `sql/seed.sql` to the new database automatically.
-5. Open the service URL. `"/api/health"` should report `database: connected`.
+1. In Render: **New → Blueprint**, then select this repository.
+2. Render reads `render.yaml` from the default branch and shows the web service.
+3. When prompted for `DATABASE_URL`, paste the connection string of your
+   PostgreSQL instance: **Dashboard → your database → Connect → Internal
+   Database URL**.
+4. Confirm with **Apply**.
+5. On first boot the service creates its tables and reference data in that
+   database automatically.
+6. Open the service URL. `/api/health` should report `database: connected`.
 
-`DATABASE_URL` is wired from the database automatically — you do not paste it in.
+**Region matters.** The Internal Database URL only resolves when the service and
+the database are in the same region — set `region:` in `render.yaml` to match
+your database. If they must differ, use the External Database URL and open the
+database's IP allow list; TLS is then negotiated automatically.
+
+To let the blueprint manage its own database instead (after deleting the
+existing free one, or on a paid plan), `render.yaml` carries the `databases:`
+block commented out at the bottom along with the `DATABASE_URL` change needed.
 
 ### Build and start commands
 
@@ -106,7 +115,7 @@ start: npm start         # runs migrations, then serves API + client
 
 | Variable | Set by | Notes |
 | --- | --- | --- |
-| `DATABASE_URL` | Blueprint | Internal connection string for `bia-postgres` |
+| `DATABASE_URL` | You, at sync time | Connection string of your existing Render PostgreSQL |
 | `NODE_VERSION` | Blueprint | `20` |
 | `RUN_MIGRATIONS` | Blueprint | `true` — applies schema/seed on boot |
 | `ENABLE_PUBLIC_SYNC` | Blueprint | `false` — a free instance sleeps, so the nightly cron would not fire reliably |
@@ -115,12 +124,14 @@ start: npm start         # runs migrations, then serves API + client
 
 ### Things worth knowing
 
-- **Free Postgres expires after 30 days.** Render deletes it unless you upgrade
-  to a paid instance. Export anything you need before then.
+- **Free Postgres expires 30 days after it is created.** Render deletes it
+  unless you upgrade to a paid instance. Export anything you need before then.
+- **Only one free database per account.** That is why the blueprint reuses an
+  existing instance rather than creating its own.
 - **Free web services sleep after 15 minutes idle**, so the first request after
   a pause takes roughly 50 seconds while the instance wakes.
-- **Region** is `oregon` in `render.yaml`. Change it on both the database and the
-  service — they must match for the internal connection string to resolve.
+- **Region** is `oregon` in `render.yaml`. It must match your database's region
+  for the Internal Database URL to resolve.
 - **Branch**: Render deploys the repository's default branch unless you pick a
   different one in the Blueprint settings.
 - **Uploaded workbooks are parsed and deleted**; the disk is ephemeral, so
