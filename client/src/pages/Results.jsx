@@ -531,6 +531,57 @@ function RunsTab({ runs, model, result, onDelete, onClear }) {
   );
 }
 
+/* Budget-impact waterfall: floats each cost-component change from the running
+   total, ending on a solid Net impact bar. This is the "why" visual — increased
+   drug cost minus the offsets that follow. */
+function WaterfallBridge({ steps, net, cur }) {
+  // Running cumulative after each step; net should equal the last cumulative.
+  let run = 0;
+  const bars = steps.map((st) => {
+    const from = run;
+    run += st.diff;
+    return { label: st.label, from, to: run, diff: st.diff, up: st.diff >= 0 };
+  });
+  bars.push({ label: "Net impact", from: 0, to: net, diff: net, total: true, up: net >= 0 });
+
+  const vals = [0, ...bars.flatMap((b) => [b.from, b.to])];
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const span = max - min || 1;
+  const y = (v) => ((max - v) / span) * 100; // % from top
+  const zeroY = y(0);
+
+  return (
+    <div className="waterfall">
+      <div className="wf-plot">
+        <div className="wf-zero" style={{ top: `${zeroY}%` }} />
+        {bars.map((b, i) => {
+          const top = Math.min(y(b.from), y(b.to));
+          const height = Math.max(Math.abs(y(b.to) - y(b.from)), 0.6);
+          const color = b.total ? "var(--brand)" : b.up ? "var(--negative)" : "var(--positive)";
+          return (
+            <div className="wf-col" key={b.label}>
+              <div
+                className="wf-bar"
+                style={{ top: `${top}%`, height: `${height}%`, background: color }}
+                title={`${b.label}: ${b.up ? "+" : ""}${moneyShort(b.diff, cur)}`}
+              />
+              <div className="wf-val" style={{ top: `${Math.max(top - 7, 0)}%` }}>
+                {b.up ? "+" : ""}{moneyShort(b.diff, cur)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="wf-labels">
+        {bars.map((b) => (
+          <div key={b.label} className={`wf-label${b.total ? " total" : ""}`}>{b.label}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* Executive decision-intelligence summary, always visible above the tabs. */
 function DecisionSummary({ model, result, mostSensitive, onExport, exporting, onSaveRun }) {
   const cur = model.currency;
@@ -604,6 +655,9 @@ function CompareTab({ model, result }) {
   const s = result.summary;
   const increases = cmp.difference >= 0;
 
+  // Waterfall bridge: net impact built from each cost component's change.
+  const steps = cmp.categories.map((c) => ({ label: c.label.replace(/ \(.*\)/, ""), diff: c.diff }));
+
   const chartData = cmp.categories.map((c) => ({
     name: c.label.replace(/ \(.*\)/, ""),
     Current: c.current,
@@ -612,6 +666,14 @@ function CompareTab({ model, result }) {
 
   return (
     <>
+      <div className="card">
+        <div className="card-head">
+          <h2>Why the budget changes — net impact bridge</h2>
+          <p>Each cost component's change, building from zero to the net budget impact. Red adds cost, green is a saving (offset).</p>
+        </div>
+        <WaterfallBridge steps={steps} net={cmp.difference} cur={cur} />
+      </div>
+
       <div className="card">
         <div className="card-head">
           <h2>Current market vs new drug</h2>
@@ -800,6 +862,59 @@ function MethodologyTab({ model, result }) {
           </table>
         </div>
       </div>
+
+      <ValidationCard result={result} cur={cur} />
+
+      <div className="card">
+        <div className="card-head"><h2>Scope and limitations</h2></div>
+        <ul className="limits">
+          <li>This is a <strong>budget impact analysis</strong>, not a cost-effectiveness analysis: it estimates affordability (spend over time), not value per QALY or clinical superiority.</li>
+          <li>Every result depends on the assumptions entered. Defaults are illustrative starting points, not validated country estimates.</li>
+          <li>The tool does not claim clinical effectiveness, cost-effectiveness, or a reimbursement recommendation.</li>
+          <li>It supports early-stage decisions; it does not replace a formal HEOR model or HTA submission.</li>
+        </ul>
+      </div>
     </>
+  );
+}
+
+/* Reference-case consistency check — compares the model's net impact against a
+   number the user pastes from a published or independently built analysis. It
+   checks reproducibility, NOT clinical validity, and says so. */
+function ValidationCard({ result, cur }) {
+  const [ref, setRef] = useState("");
+  const model = result.summary.netBudgetImpactTotal;
+  const refVal = Number(ref);
+  const valid = ref !== "" && Number.isFinite(refVal) && refVal !== 0;
+  const absDiff = valid ? model - refVal : 0;
+  const pctDiff = valid ? (absDiff / Math.abs(refVal)) * 100 : 0;
+  const within = Math.abs(pctDiff);
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <h2>Reference-case consistency check</h2>
+        <p>Enter a budget-impact figure from a published or independent analysis to see how closely this model reproduces it. This checks reproducibility, not clinical validity.</p>
+      </div>
+      <div className="grid" style={{ maxWidth: 640 }}>
+        <div className="field">
+          <label>Reference net budget impact ({cur})</label>
+          <input type="number" value={ref} placeholder="e.g. 52400000" onChange={(e) => setRef(e.target.value)} />
+          <span className="hint">Total over the same horizon, same currency.</span>
+        </div>
+        <div className="field">
+          <label>This model</label>
+          <input type="text" value={money(model, cur)} readOnly />
+        </div>
+      </div>
+      {valid && (
+        <div className={`conclusion ${within <= 5 ? "pos" : ""}`} style={{ marginTop: 16 }}>
+          <strong>Difference:</strong> {money(absDiff, cur)} ({pctDiff >= 0 ? "+" : ""}{pctDiff.toFixed(2)}%).{" "}
+          {within <= 5
+            ? `The model reproduces the reference result within ${within.toFixed(2)}%.`
+            : `The model differs from the reference by ${within.toFixed(2)}% — check that the inputs match the reference case.`}
+        </div>
+      )}
+    </div>
   );
 }
