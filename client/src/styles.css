@@ -115,7 +115,7 @@ body {
   background: var(--sunken); color: var(--ink-muted);
   font-size: 11px; font-weight: 700; flex-shrink: 0;
 }
-.step-btn.done .num { background: var(--positive); color: #fff; }
+.step-btn.done .num { background: linear-gradient(135deg, var(--brand), var(--accent)); color: #fff; }
 .step-btn.active {
   background: var(--brand-soft); color: var(--brand);
   border-color: var(--brand-border); font-weight: 600;

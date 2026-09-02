@@ -70,7 +70,7 @@ export default function Assistant({ model, result }) {
         aria-label={open ? "Close assistant" : "Open assistant"}
         title="BIET assistant — ask about your model"
       >
-        {open ? <span className="fab-x">×</span> : <Icon name="chat" size={24} />}
+        {open ? <span className="fab-x">×</span> : <Icon name="robot" size={30} />}
       </button>
 
       {open && (
