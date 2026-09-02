@@ -122,6 +122,53 @@ export const DISEASES = {
       ],
     },
   },
+
+  MASH: {
+    code: "MASH",
+    label: "MASH (metabolic dysfunction-associated steatohepatitis)",
+    therapyArea: "Cardiometabolic",
+    eligibilityUnit: "Fibrosis",
+    subgroups: [
+      { dimension: "FIBROSIS_STAGE", code: "F2", label: "Fibrosis F2 (significant)" },
+      { dimension: "FIBROSIS_STAGE", code: "F3", label: "Fibrosis F3 (advanced)" },
+      { dimension: "FIBROSIS_STAGE", code: "F4_COMP", label: "F4 compensated cirrhosis" },
+      { dimension: "COMORBIDITY", code: "WITH_T2D", label: "With type 2 diabetes" },
+      { dimension: "COMORBIDITY", code: "WITH_OBESITY", label: "With obesity" },
+      { dimension: "COMORBIDITY", code: "NONE", label: "No metabolic comorbidity" },
+    ],
+    defaults: {
+      ...SHARED,
+      modelName: "MASH Early-Stage BIA",
+      diseaseName: "MASH",
+      prevalence: 0.05,          // ~5% of adults have MASH
+      annualIncidence: 0.004,
+      diagnosisRate: 0.20,       // heavily under-diagnosed
+      bmiThreshold: 2,           // reused field = minimum fibrosis stage (F2+)
+      comorbidityRequirement: "F2-F3 fibrosis without decompensated cirrhosis",
+      clinicalEligibility: 0.50,
+      payerEligibility: 0.70,
+      expectedWeightLossPct: 0.10,
+      responderRate: 0.30,       // >=1 stage fibrosis improvement
+      weightRegainRate: 0.06,
+      currentTreatments: [
+        { treatmentCode: "LIFESTYLE", treatmentName: "Diet & lifestyle", marketShare: 0.70, annualDrugCost: 0, annualAdminCost: 0, annualMonitoringCost: 4000, annualDeviceCost: 0, adherence: 1, persistence: 0.8, discontinuation: 0.1 },
+        { treatmentCode: "VIT_E", treatmentName: "Vitamin E / off-label", marketShare: 0.20, annualDrugCost: 6000, annualAdminCost: 0, annualMonitoringCost: 4000, annualDeviceCost: 0, adherence: 0.7, persistence: 0.65, discontinuation: 0.25 },
+        { treatmentCode: "GLP1_OFF", treatmentName: "GLP-1 (off-label)", marketShare: 0.10, annualDrugCost: 60000, annualAdminCost: 1000, annualMonitoringCost: 5000, annualDeviceCost: 0, adherence: 0.8, persistence: 0.75, discontinuation: 0.18 },
+      ],
+      newIntervention: { treatmentCode: "NEW_MASH", treatmentName: "Early-stage MASH therapy", annualDrugCost: 140000, annualAdminCost: 2000, annualMonitoringCost: 8000, annualDeviceCost: 0, adherence: 0.85, persistence: 0.78, discontinuation: 0.15 },
+      uptake: [
+        { year: 1, uptake: 0.04 }, { year: 2, uptake: 0.09 }, { year: 3, uptake: 0.16 },
+        { year: 4, uptake: 0.24 }, { year: 5, uptake: 0.30 },
+      ],
+      outcomes: [
+        { outcomeCode: "CIRRHOSIS", outcomeName: "Progression to cirrhosis", currentAnnualRate: 0.04, newRelativeRisk: 0.70, costPerEvent: 90000 },
+        { outcomeCode: "DECOMP", outcomeName: "Hepatic decompensation", currentAnnualRate: 0.015, newRelativeRisk: 0.68, costPerEvent: 250000 },
+        { outcomeCode: "HCC", outcomeName: "Hepatocellular carcinoma", currentAnnualRate: 0.006, newRelativeRisk: 0.75, costPerEvent: 400000 },
+        { outcomeCode: "CV_EVENT", outcomeName: "Cardiovascular event", currentAnnualRate: 0.02, newRelativeRisk: 0.85, costPerEvent: 120000 },
+        { outcomeCode: "T2D_NEW", outcomeName: "New type 2 diabetes", currentAnnualRate: 0.05, newRelativeRisk: 0.80, costPerEvent: 25000 },
+      ],
+    },
+  },
 };
 
 export const DISEASE_LIST = Object.values(DISEASES).map((d) => ({

@@ -34,8 +34,21 @@ const PATHS = {
   clinical: <><path d="M12 21s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4.5-7 9-7 9z" /></>,
   runs: <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="8" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="14" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="10" cy="18" r="1.4" fill="currentColor" stroke="none" /></>,
   pdf: <><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v4h4" /><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 16v2" opacity=".9" /></>,
-  // Chat bubble for the assistant button
-  chat: <><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9A1.5 1.5 0 0 1 18.5 16H9l-4 3.5V16H5.5A1.5 1.5 0 0 1 4 14.5z" /><path d="M8 9h8M8 12h5" /></>,
+  // Robot with headphones for the assistant button (matches the requested look)
+  robot: (
+    <>
+      <circle cx="12" cy="3.4" r="1.15" fill="currentColor" stroke="none" />
+      <path d="M12 4.5v1.6" />
+      <path d="M5.5 11.5V11a6.5 6.5 0 0 1 13 0v.5" />
+      <rect x="3" y="10.6" width="2.4" height="4.2" rx="1.2" />
+      <rect x="18.6" y="10.6" width="2.4" height="4.2" rx="1.2" />
+      <rect x="6" y="6.2" width="12" height="10.4" rx="3" />
+      <circle cx="9.7" cy="11" r="1.15" fill="currentColor" stroke="none" />
+      <circle cx="14.3" cy="11" r="1.15" fill="currentColor" stroke="none" />
+      <path d="M9.6 13.4a3 3 0 0 0 4.8 0" />
+      <path d="M10.5 16.6l-1.3 3 3-2.1" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 16, className }) {

@@ -145,6 +145,33 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
 
           <div className="card">
             <div className="card-head">
+              <h2>With vs without intervention</h2>
+              <p>Total annual spend under current care and with the new intervention.</p>
+            </div>
+            <Legend2
+              items={[
+                { label: "Without intervention", color: SERIES[0] },
+                { label: "With intervention", color: SERIES[2] },
+              ]}
+            />
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={byYear} margin={{ top: 4, right: 8, left: 8, bottom: 4 }} barGap={4}>
+                <CartesianGrid {...grid} />
+                <XAxis dataKey="year" {...axis} axisLine={false} />
+                <YAxis {...axis} axisLine={false} tickFormatter={(v) => moneyShort(v, cur)} width={72} />
+                <Tooltip
+                  contentStyle={tooltipStyle()}
+                  cursor={{ fill: "var(--sunken)" }}
+                  formatter={(v, name) => [money(v, cur), name]}
+                />
+                <Bar dataKey="current" name="Without intervention" fill={SERIES[0]} radius={[4, 4, 0, 0]} maxBarSize={26} isAnimationActive={false} />
+                <Bar dataKey="proposed" name="With intervention" fill={SERIES[2]} radius={[4, 4, 0, 0]} maxBarSize={26} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="card">
+            <div className="card-head">
               <h2>Budget impact by year</h2>
               <p>Red bars add cost, green bars save it, against current care.</p>
             </div>

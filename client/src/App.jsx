@@ -38,8 +38,10 @@ export default function App() {
   // rather than patching fields, so comparators, outcomes and subgroups all
   // move together.
   const onDisease = (code) => {
-    setModel(defaultModelFor(code));
-    setNotice({ kind: "info", text: `Loaded default ${code === "T2D" ? "type 2 diabetes" : "obesity"} model.` });
+    const next = defaultModelFor(code);
+    setModel(next);
+    const short = next.diseaseName.split(/[/(]/)[0].trim();
+    setNotice({ kind: "info", text: `Loaded default ${short} model.` });
   };
 
   const onSaveRun = () => {
@@ -100,7 +102,9 @@ export default function App() {
           <b>BIET</b>
           <span>Budget Impact Estimation Tool</span>
         </div>
-        <span className="chip">{model.therapyArea} · Obesity</span>
+        <span className="chip">
+          {model.therapyArea} · {model.diseaseName.split(/[/(]/)[0].trim()}
+        </span>
         <span className="topbar-spacer" />
         <input
           ref={fileRef} type="file" accept=".xlsx,.xls"

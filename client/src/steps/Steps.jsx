@@ -152,23 +152,26 @@ export function StepPopulation({ model, set }) {
 
       <div className="section-label">Eligibility</div>
       <div className="grid">
-        <NumberField
-          label={
-            (DISEASES[model.diseaseCode]?.eligibilityUnit || "BMI") === "HbA1c"
-              ? "HbA1c threshold"
-              : "BMI threshold"
-          }
-          value={model.bmiThreshold}
-          step={0.5}
-          min={0}
-          max={60}
-          onChange={(v) => set({ bmiThreshold: v })}
-          suffix={
-            (DISEASES[model.diseaseCode]?.eligibilityUnit || "BMI") === "HbA1c"
-              ? "%"
-              : "kg/m²"
-          }
-        />
+        {(() => {
+          const unit = DISEASES[model.diseaseCode]?.eligibilityUnit || "BMI";
+          const label = {
+            BMI: "BMI threshold",
+            HbA1c: "HbA1c threshold",
+            Fibrosis: "Fibrosis stage threshold",
+          }[unit];
+          const suffix = { BMI: "kg/m²", HbA1c: "%", Fibrosis: "stage" }[unit];
+          return (
+            <NumberField
+              label={label}
+              value={model.bmiThreshold}
+              step={unit === "Fibrosis" ? 1 : 0.5}
+              min={0}
+              max={60}
+              onChange={(v) => set({ bmiThreshold: v })}
+              suffix={suffix}
+            />
+          );
+        })()}
         <TextField
           label="Comorbidity requirement"
           value={model.comorbidityRequirement}
