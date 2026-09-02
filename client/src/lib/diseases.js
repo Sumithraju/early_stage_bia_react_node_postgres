@@ -190,3 +190,40 @@ export function defaultModelFor(code = "OBESITY") {
 export function subgroupsFor(code) {
   return (DISEASES[code] || DISEASES.OBESITY).subgroups;
 }
+
+/**
+ * Polished end-to-end demo so a judge sees a full result immediately. Type 2
+ * diabetes, Germany, EUR, a hypothetical "Drug X". All figures are illustrative
+ * demonstration values, not sourced country estimates.
+ */
+export function demoScenario() {
+  const m = defaultModelFor("T2D");
+  return {
+    ...m,
+    modelName: "Demo — Drug X in Germany (T2D)",
+    countryCode: "DEU",
+    countryName: "Germany",
+    currency: "EUR",
+    perspective: "Statutory health insurer",
+    coveredPopulation: 8_000_000,
+    prevalence: 0.09,
+    annualIncidence: 0.006,
+    diagnosisRate: 0.75,
+    clinicalEligibility: 0.55,
+    payerEligibility: 0.85,
+    isDemo: true,
+    currentTreatments: [
+      { treatmentCode: "METFORMIN", treatmentName: "Metformin +/- SU", marketShare: 0.6, annualDrugCost: 250, annualAdminCost: 0, annualMonitoringCost: 300, annualDeviceCost: 0, adherence: 0.8, persistence: 0.8, discontinuation: 0.15 },
+      { treatmentCode: "BASAL_INSULIN", treatmentName: "Basal insulin", marketShare: 0.25, annualDrugCost: 1400, annualAdminCost: 120, annualMonitoringCost: 600, annualDeviceCost: 250, adherence: 0.75, persistence: 0.7, discontinuation: 0.2 },
+      { treatmentCode: "DPP4", treatmentName: "DPP-4 inhibitor", marketShare: 0.15, annualDrugCost: 900, annualAdminCost: 0, annualMonitoringCost: 300, annualDeviceCost: 0, adherence: 0.8, persistence: 0.75, discontinuation: 0.18 },
+    ],
+    newIntervention: { treatmentCode: "DRUG_X", treatmentName: "Drug X (early-stage GLP-1)", annualDrugCost: 3200, annualAdminCost: 120, annualMonitoringCost: 400, annualDeviceCost: 0, adherence: 0.85, persistence: 0.78, discontinuation: 0.15 },
+    outcomes: [
+      { outcomeCode: "CV_EVENT", outcomeName: "Cardiovascular event (MACE)", currentAnnualRate: 0.022, newRelativeRisk: 0.80, costPerEvent: 12000 },
+      { outcomeCode: "CKD", outcomeName: "CKD progression", currentAnnualRate: 0.03, newRelativeRisk: 0.76, costPerEvent: 9000 },
+      { outcomeCode: "HYPO", outcomeName: "Severe hypoglycaemia admission", currentAnnualRate: 0.04, newRelativeRisk: 0.68, costPerEvent: 3500 },
+      { outcomeCode: "RETINO", outcomeName: "Retinopathy / vision care", currentAnnualRate: 0.025, newRelativeRisk: 0.85, costPerEvent: 4000 },
+      { outcomeCode: "AMPUT", outcomeName: "Foot ulcer / amputation", currentAnnualRate: 0.008, newRelativeRisk: 0.74, costPerEvent: 20000 },
+    ],
+  };
+}

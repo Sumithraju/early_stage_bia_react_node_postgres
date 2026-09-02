@@ -223,3 +223,96 @@ export async function downloadTemplate(model) {
 
   XLSX.writeFile(wb, "BIET-input-template.xlsx");
 }
+
+/**
+ * Export the full analysis as a multi-sheet workbook. Numbers are written as
+ * raw values (not formatted strings) so a payer can pivot and re-use them.
+ * jsPDF's rupee problem does not apply here — Excel renders the symbol fine —
+ * but the currency is named in a column for clarity.
+ */
+export async function exportResultsExcel(model, result, sensitivity) {
+  const XLSX = await loadXLSX();
+  const wb = XLSX.utils.book_new();
+  const cur = model.currency;
+  const s = result.summary;
+
+  const add = (name, rows) =>
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), name);
+
+  add("Summary", [
+    { Metric: "Disease", Value: model.diseaseName },
+    { Metric: "Country", Value: model.countryName },
+    { Metric: "Perspective", Value: model.perspective },
+    { Metric: "Currency", Value: cur },
+    { Metric: "Time horizon (years)", Value: model.timeHorizonYears },
+    { Metric: "Eligible patients (year 1)", Value: Math.round(s.year1EligiblePatients) },
+    { Metric: "Patients treated (peak)", Value: Math.round(s.peakTreatedPatients) },
+    { Metric: "Current market cost (total)", Value: Math.round(s.currentCostTotal) },
+    { Metric: "New market cost (total)", Value: Math.round(s.newCostTotal) },
+    { Metric: "Net budget impact (total)", Value: Math.round(s.netBudgetImpactTotal) },
+    { Metric: "Cumulative impact", Value: Math.round(s.cumulativeImpactTotal) },
+    { Metric: "PMPM (year 1)", Value: +s.year1PMPM.toFixed(4) },
+    { Metric: "PMPY (year 1)", Value: +s.year1PMPY.toFixed(2) },
+    { Metric: "PPPM (year 1)", Value: +s.year1PPPM.toFixed(2) },
+    { Metric: "Cost per treated patient", Value: Math.round(s.costPerTreatedPatient) },
+    { Metric: "Break-even annual price", Value: s.breakEvenAnnualPrice == null ? "n/a" : Math.round(s.breakEvenAnnualPrice) },
+    { Metric: "Events avoided (total)", Value: Math.round(s.eventsAvoidedTotal) },
+    { Metric: "Hospital cost avoided (total)", Value: Math.round(s.hospitalCostAvoidedTotal) },
+  ]);
+
+  add("Year by year", result.annualResults.map((r) => ({
+    Year: r.calendarYear,
+    "Patients treated": Math.round(r.newInterventionPatients),
+    Uptake: +r.uptake.toFixed(4),
+    "Without intervention": Math.round(r.currentScenarioCost),
+    "With intervention": Math.round(r.newScenarioCost),
+    "Net impact": Math.round(r.netBudgetImpact),
+    Cumulative: Math.round(r.cumulativeImpact),
+    PMPM: +r.pmpm.toFixed(4),
+  })));
+
+  add("Current vs new", result.comparison.categories.map((c) => ({
+    "Cost component": c.label,
+    "Without intervention": Math.round(c.current),
+    "With intervention": Math.round(c.new),
+    Difference: Math.round(c.diff),
+  })).concat([{
+    "Cost component": "TOTAL",
+    "Without intervention": Math.round(result.comparison.totalCurrent),
+    "With intervention": Math.round(result.comparison.totalNew),
+    Difference: Math.round(result.comparison.difference),
+  }]));
+
+  add("Scenarios", result.scenarios.map((sc) => ({
+    Scenario: sc.label,
+    "Uptake vs base": `${(sc.uptakeScale * 100).toFixed(0)}%`,
+    "Patient-years": Math.round(sc.treatedPatientYears),
+    "Net impact": Math.round(sc.netBudgetImpactTotal),
+    "Year 1 PMPM": +sc.year1PMPM.toFixed(4),
+  })));
+
+  if (sensitivity?.rows) {
+    add("Sensitivity", sensitivity.rows.map((r) => ({
+      Parameter: r.label,
+      "Net impact at -20%": Math.round(r.low),
+      "Net impact at +20%": Math.round(r.high),
+      Swing: Math.round(r.swing),
+    })));
+  }
+
+  add("Assumptions", [
+    { Parameter: "Covered population", Value: model.coveredPopulation, Unit: "people" },
+    { Parameter: "Prevalence", Value: model.prevalence, Unit: "fraction" },
+    { Parameter: "Annual incidence", Value: model.annualIncidence, Unit: "fraction/yr" },
+    { Parameter: "Diagnosed share", Value: model.diagnosisRate, Unit: "fraction" },
+    { Parameter: "Clinical eligibility", Value: model.clinicalEligibility, Unit: "fraction" },
+    { Parameter: "Payer eligibility", Value: model.payerEligibility, Unit: "fraction" },
+    { Parameter: "New drug annual price", Value: model.newIntervention.annualDrugCost, Unit: cur },
+    { Parameter: "New drug adherence", Value: model.newIntervention.adherence, Unit: "fraction" },
+    { Parameter: "Responder rate", Value: model.responderRate, Unit: "fraction" },
+    { Parameter: "Note", Value: "Budget impact analysis. Illustrative assumptions; not a validated country estimate or cost-effectiveness result.", Unit: "" },
+  ]);
+
+  const stamp = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `BIET-analysis-${model.diseaseCode}-${stamp}.xlsx`);
+}
