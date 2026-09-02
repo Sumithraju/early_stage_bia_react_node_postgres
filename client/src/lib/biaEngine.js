@@ -27,6 +27,18 @@ function annualTreatmentCost(row) {
   );
 }
 
+/** Same cost, split by category, for the current-vs-new comparison and trace. */
+function components(row) {
+  const adherence = clamp01(row.adherence ?? 1);
+  const persistence = clamp01(row.persistence ?? 1);
+  return {
+    drug: Math.max(0, num(row.annualDrugCost)) * adherence * persistence,
+    admin: Math.max(0, num(row.annualAdminCost)) * persistence,
+    monitoring: Math.max(0, num(row.annualMonitoringCost)) * persistence,
+    device: Math.max(0, num(row.annualDeviceCost)) * persistence,
+  };
+}
+
 /**
  * Obesity interventions lose effect as patients regain weight. The share of the
  * relative-risk benefit still standing in year `year` decays geometrically at
@@ -95,6 +107,20 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
     0
   );
 
+  // Blended current-care cost per patient, split by category (share-weighted).
+  const blendedCur = input.currentTreatments.reduce(
+    (acc, row) => {
+      const c = components(row);
+      const w = num(row.marketShare);
+      acc.drug += w * c.drug;
+      acc.admin += w * c.admin;
+      acc.monitoring += w * c.monitoring;
+      acc.device += w * c.device;
+      return acc;
+    },
+    { drug: 0, admin: 0, monitoring: 0, device: 0 }
+  );
+
   const newIntervention =
     drugCostOverride === null
       ? input.newIntervention
@@ -103,6 +129,16 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
   const newTreatmentPP = annualTreatmentCost(newIntervention);
 
   const currentMedicalPP = medicalCostPerPatient(input.outcomes, () => 1);
+  const newComp = components(newIntervention);
+  const newMedicalPPYear1 = medicalCostPerPatient(input.outcomes, (row) =>
+    effectiveRelativeRisk(row, weightRegain, 1)
+  );
+
+  // Horizon totals by cost category, for the current-vs-new comparison.
+  const cost = {
+    curDrug: 0, curAdmin: 0, curMon: 0, curMed: 0,
+    newDrug: 0, newAdmin: 0, newMon: 0, newMed: 0,
+  };
 
   const uptakeMap = new Map(
     (input.uptake || []).map((x) => [Number(x.year), clamp01(x.uptake)])
@@ -185,6 +221,21 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
       newInterventionTreatment +
       newInterventionMedical;
 
+    // Category accumulation (sums reconcile exactly to the scenario totals).
+    cost.curDrug += eligiblePatients * blendedCur.drug;
+    cost.curAdmin += eligiblePatients * blendedCur.admin;
+    cost.curMon += eligiblePatients * (blendedCur.monitoring + blendedCur.device);
+    cost.curMed += eligiblePatients * currentMedicalPP;
+    cost.newDrug += remainingCurrent * blendedCur.drug + newPatients * newComp.drug;
+    cost.newAdmin += remainingCurrent * blendedCur.admin + newPatients * newComp.admin;
+    cost.newMon +=
+      remainingCurrent * (blendedCur.monitoring + blendedCur.device) +
+      newPatients * (newComp.monitoring + newComp.device);
+    cost.newMed +=
+      remainingCurrent * currentMedicalPP +
+      respondingPatients * newMedicalPP +
+      (newPatients - respondingPatients) * currentMedicalPP;
+
     const netBudgetImpact = newScenarioCost - currentScenarioCost;
     cumulativeImpact += netBudgetImpact;
 
@@ -210,7 +261,24 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
     });
   }
 
-  return { annualResults, eventsAvoidedByOutcome, newTreatmentPP };
+  return {
+    annualResults,
+    eventsAvoidedByOutcome,
+    newTreatmentPP,
+    cost,
+    perPatient: {
+      currentDrug: blendedCur.drug,
+      currentAdmin: blendedCur.admin,
+      currentMonitoring: blendedCur.monitoring + blendedCur.device,
+      currentMedical: currentMedicalPP,
+      currentTotal: currentTreatmentCostPerPatient + currentMedicalPP,
+      newDrug: newComp.drug,
+      newAdmin: newComp.admin,
+      newMonitoring: newComp.monitoring + newComp.device,
+      newMedical: newMedicalPPYear1,
+      newTotal: newTreatmentPP + newMedicalPPYear1,
+    },
+  };
 }
 
 /**
@@ -309,10 +377,36 @@ export function calculateBudgetImpact(input) {
     breakEvenAnnualPrice: breakEvenDrugCost(input, base),
   };
 
+  // Current-vs-new cost comparison, by category, over the horizon.
+  const c = base.cost;
+  const categories = [
+    { key: "drug", label: "Drug acquisition", current: c.curDrug, new: c.newDrug },
+    { key: "admin", label: "Administration", current: c.curAdmin, new: c.newAdmin },
+    { key: "monitoring", label: "Monitoring / labs", current: c.curMon, new: c.newMon },
+    { key: "medical", label: "Medical events (AE / hospitalisation)", current: c.curMed, new: c.newMed },
+  ].map((x) => ({ ...x, diff: x.new - x.current }));
+
+  const patientYears = totals("eligiblePatients");
+  const comparison = {
+    patientYears,
+    categories,
+    totalCurrent: summary.currentCostTotal,
+    totalNew: summary.newCostTotal,
+    difference: netBudgetImpactTotal,
+  };
+
+  // Decision intelligence: which category adds the most, which offsets the most.
+  const biggestDriver = [...categories].sort((a, b) => b.diff - a.diff)[0];
+  const biggestOffset = [...categories].sort((a, b) => a.diff - b.diff)[0];
+  summary.biggestDriver = biggestDriver;
+  summary.biggestOffset = biggestOffset;
+
   return {
     summary,
     annualResults,
     eventsAvoided: [...base.eventsAvoidedByOutcome.values()],
     scenarios,
+    comparison,
+    perPatient: base.perPatient,
   };
 }
