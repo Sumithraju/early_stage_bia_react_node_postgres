@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { calculateBudgetImpact } from "./lib/biaEngine.js";
 import { getDefaultModel } from "./lib/defaultModel.js";
-import { defaultModelFor } from "./lib/diseases.js";
+import { defaultModelFor, demoScenario } from "./lib/diseases.js";
 import { clearRuns, deleteRun, loadRuns, saveRun } from "./lib/runs.js";
 import Assistant from "./components/Assistant.jsx";
 import Icon from "./components/Icons.jsx";
@@ -42,6 +42,13 @@ export default function App() {
     setModel(next);
     const short = next.diseaseName.split(/[/(]/)[0].trim();
     setNotice({ kind: "info", text: `Loaded default ${short} model.` });
+  };
+
+  const loadDemo = () => {
+    setModel(demoScenario());
+    setStepIndex(0);
+    setShowResults(true);
+    setNotice({ kind: "info", text: "Loaded demonstration scenario: Drug X in Germany (Type 2 diabetes). All values are illustrative demonstration data only." });
   };
 
   const onSaveRun = () => {
@@ -105,11 +112,15 @@ export default function App() {
         <span className="chip">
           {model.therapyArea} · {model.diseaseName.split(/[/(]/)[0].trim()}
         </span>
+        {model.isDemo && <span className="demo-badge">● Demonstration data only</span>}
         <span className="topbar-spacer" />
         <input
           ref={fileRef} type="file" accept=".xlsx,.xls"
           style={{ display: "none" }} onChange={onImport}
         />
+        <button className="btn primary sm" onClick={loadDemo} title="Load a complete demonstration scenario end-to-end">
+          ▶ Load demo
+        </button>
         <button className="btn sm" onClick={() => fileRef.current?.click()} title="Load inputs from an Excel workbook">
           Import Excel
         </button>

@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { count, money, moneyShort, pct } from "../lib/util.js";
 import { exportReport } from "../lib/pdf.js";
+import { exportResultsExcel } from "../lib/excel.js";
 import Icon from "../components/Icons.jsx";
 import Funnel from "../components/Funnel.jsx";
 import { tornado } from "../lib/sensitivity.js";
@@ -30,10 +31,13 @@ function tooltipStyle() {
   };
 }
 
-function Kpi({ label, value, sub, tone }) {
+function Kpi({ label, value, sub, tone, tip }) {
   return (
     <div className="kpi">
-      <div className="k-label">{label}</div>
+      <div className="k-label">
+        {label}
+        {tip && <span className="kpi-info" title={tip}>i</span>}
+      </div>
       <div className={`k-value${tone ? ` ${tone}` : ""}`}>{value}</div>
       {sub && <div className="k-sub">{sub}</div>}
     </div>
@@ -71,6 +75,18 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
   // One-way sensitivity (20 recomputes on a small model — cheap, memoised).
   const torn = useMemo(() => tornado(model), [model]);
   const mostSensitive = torn.rows[0];
+
+  const [exportingXlsx, setExportingXlsx] = useState(false);
+  const onExportExcel = async () => {
+    setExportingXlsx(true);
+    try {
+      await exportResultsExcel(model, result, torn);
+    } catch (e) {
+      alert("Could not generate the Excel file: " + e.message);
+    } finally {
+      setExportingXlsx(false);
+    }
+  };
   const cur = model.currency;
   const s = result.summary;
   const increases = s.netBudgetImpactTotal >= 0;
@@ -111,6 +127,8 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
         mostSensitive={mostSensitive}
         onExport={onExport}
         exporting={exporting}
+        onExportExcel={onExportExcel}
+        exportingXlsx={exportingXlsx}
         onSaveRun={onSaveRun}
       />
 
@@ -149,8 +167,8 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
               tone={increases ? "neg" : "pos"}
               sub={increases ? "cost increase" : "saving"}
             />
-            <Kpi label="Affordability — PMPM" value={money(s.year1PMPM, cur)} sub="per member / month (Y1)" />
-            <Kpi label="Affordability — PMPY" value={money(s.year1PMPY, cur)} sub="per member / year (Y1)" />
+            <Kpi label="Affordability — PMPM" value={money(s.year1PMPM, cur)} sub="per member / month (Y1)" tip="Per-Member-Per-Month: incremental annual impact ÷ covered population ÷ 12. What the impact costs each covered life monthly." />
+            <Kpi label="Affordability — PPPM" value={money(s.year1PPPM, cur)} sub="per treated patient / month (Y1)" tip="Per-Patient-Per-Month: incremental impact ÷ treated patients ÷ 12. The monthly cost attributable to each patient actually treated." />
             <Kpi label="Patients treated" value={count(s.peakTreatedPatients)} sub="at peak year" />
             <Kpi label="Cost per treated patient" value={money(s.costPerTreatedPatient, cur)} sub="per year" />
             <Kpi
@@ -583,7 +601,7 @@ function WaterfallBridge({ steps, net, cur }) {
 }
 
 /* Executive decision-intelligence summary, always visible above the tabs. */
-function DecisionSummary({ model, result, mostSensitive, onExport, exporting, onSaveRun }) {
+function DecisionSummary({ model, result, mostSensitive, onExport, exporting, onExportExcel, exportingXlsx, onSaveRun }) {
   const cur = model.currency;
   const s = result.summary;
   const increases = s.netBudgetImpactTotal >= 0;
@@ -623,6 +641,9 @@ function DecisionSummary({ model, result, mostSensitive, onExport, exporting, on
         <div className="decision-actions">
           <button className="btn sm" onClick={onExport} disabled={exporting} title="Download a formatted PDF report">
             <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Save as PDF"}
+          </button>
+          <button className="btn sm" onClick={onExportExcel} disabled={exportingXlsx} title="Download the full analysis as an Excel workbook">
+            <Icon name="budget" size={14} /> {exportingXlsx ? "Preparing…" : "Export Excel"}
           </button>
           <button className="btn primary sm" onClick={onSaveRun} title="Snapshot for comparison">
             + Save run
