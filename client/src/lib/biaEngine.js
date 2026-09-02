@@ -253,6 +253,7 @@ function project(input, { uptakeScale = 1, drugCostOverride = null } = {}) {
       cumulativeImpact,
       pmpm: population > 0 ? netBudgetImpact / population / 12 : 0,
       pmpy: population > 0 ? netBudgetImpact / population : 0,
+      pppm: newPatients > 0 ? netBudgetImpact / newPatients / 12 : 0,
       costPerTreatedPatient:
         newPatients > 0 ? newInterventionTreatment / newPatients : 0,
       eventsAvoided: yearEventsAvoided,
@@ -363,6 +364,8 @@ export function calculateBudgetImpact(input) {
     year1PMPY: annualResults[0]?.pmpy || 0,
     averagePMPY:
       annualResults.reduce((s, r) => s + r.pmpy, 0) / annualResults.length,
+    // Per-patient-per-month: incremental cost per *treated* patient per month.
+    year1PPPM: annualResults[0]?.pppm || 0,
     treatedPatientYears,
     newInterventionPatientYears: treatedPatientYears,
     peakTreatedPatients: Math.max(
