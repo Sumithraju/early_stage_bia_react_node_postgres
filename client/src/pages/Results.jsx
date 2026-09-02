@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -6,6 +6,8 @@ import {
 import { count, money, moneyShort, pct } from "../lib/util.js";
 import { exportReport } from "../lib/pdf.js";
 import Icon from "../components/Icons.jsx";
+import Funnel from "../components/Funnel.jsx";
+import { tornado } from "../lib/sensitivity.js";
 
 /* Validated categorical series - see the palette check in the build notes.
    The brand indigo/violet pair fails CVD separation as adjacent series, so
@@ -65,6 +67,10 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
       setExporting(false);
     }
   };
+
+  // One-way sensitivity (20 recomputes on a small model — cheap, memoised).
+  const torn = useMemo(() => tornado(model), [model]);
+  const mostSensitive = torn.rows[0];
   const cur = model.currency;
   const s = result.summary;
   const increases = s.netBudgetImpactTotal >= 0;
@@ -99,25 +105,36 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
         </div>
       </div>
 
-      <div className="tabs" style={{ alignItems: "center" }}>
+      <DecisionSummary
+        model={model}
+        result={result}
+        mostSensitive={mostSensitive}
+        onExport={onExport}
+        exporting={exporting}
+        onSaveRun={onSaveRun}
+      />
+
+      <div className="tabs scroll-tabs">
         <button className={`tab${tab === "impact" ? " active" : ""}`} onClick={() => setTab("impact")} title="Net impact, cost per patient and the year-by-year table">
           <Icon name="budget" size={15} /> Budget impact
         </button>
+        <button className={`tab${tab === "compare" ? " active" : ""}`} onClick={() => setTab("compare")} title="Current market vs new drug, by cost component">
+          <Icon name="scenarios" size={15} /> Current vs new
+        </button>
         <button className={`tab${tab === "scenarios" ? " active" : ""}`} onClick={() => setTab("scenarios")} title="Budget impact under low, base and high uptake">
-          <Icon name="scenarios" size={15} /> Scenarios
+          <Icon name="uptake" size={15} /> Scenarios
+        </button>
+        <button className={`tab${tab === "sensitivity" ? " active" : ""}`} onClick={() => setTab("sensitivity")} title="Tornado: which assumption moves the result most">
+          <Icon name="results" size={15} /> Sensitivity
         </button>
         <button className={`tab${tab === "clinical" ? " active" : ""}`} onClick={() => setTab("clinical")} title="Events avoided and medical costs offset">
           <Icon name="clinical" size={15} /> Clinical outcomes
         </button>
+        <button className={`tab${tab === "methodology" ? " active" : ""}`} onClick={() => setTab("methodology")} title="Transparent calculation trace">
+          <Icon name="budget" size={15} /> Methodology
+        </button>
         <button className={`tab${tab === "runs" ? " active" : ""}`} onClick={() => setTab("runs")} title="Compare saved runs side by side">
           <Icon name="runs" size={15} /> Runs{runs.length ? ` (${runs.length})` : ""}
-        </button>
-        <span style={{ flex: 1 }} />
-        <button className="btn sm" onClick={onExport} disabled={exporting} title="Download a formatted PDF report of these results" style={{ marginBottom: 6, marginRight: 8 }}>
-          <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Save as PDF"}
-        </button>
-        <button className="btn primary sm" onClick={onSaveRun} title="Snapshot the current inputs and outputs for comparison" style={{ marginBottom: 6 }}>
-          + Save run
         </button>
       </div>
 
@@ -374,6 +391,12 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
         </>
       )}
 
+      {tab === "compare" && <CompareTab model={model} result={result} />}
+
+      {tab === "sensitivity" && <SensitivityTab torn={torn} cur={cur} />}
+
+      {tab === "methodology" && <MethodologyTab model={model} result={result} />}
+
       {tab === "runs" && (
         <RunsTab
           runs={runs}
@@ -505,5 +528,278 @@ function RunsTab({ runs, model, result, onDelete, onClear }) {
         </table>
       </div>
     </div>
+  );
+}
+
+/* Executive decision-intelligence summary, always visible above the tabs. */
+function DecisionSummary({ model, result, mostSensitive, onExport, exporting, onSaveRun }) {
+  const cur = model.currency;
+  const s = result.summary;
+  const increases = s.netBudgetImpactTotal >= 0;
+  const driver = s.biggestDriver;
+  const offset = s.biggestOffset;
+
+  const rec =
+    `${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
+    `${model.perspective.toLowerCase()} budget by ${moneyShort(Math.abs(s.netBudgetImpactTotal), cur)} ` +
+    `over ${model.timeHorizonYears} years (${money(s.averagePMPM, cur)} PMPM). ` +
+    `The largest driver is ${driver.label.toLowerCase()}` +
+    `${offset && offset.diff < 0 ? `, partly offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
+    `The result is most sensitive to ${mostSensitive ? mostSensitive.label.toLowerCase() : "the price and uptake assumptions"} — ` +
+    `validate that before reimbursement planning.`;
+
+  const stats = [
+    [`${model.timeHorizonYears}-year net budget impact`, moneyShort(s.netBudgetImpactTotal, cur), increases ? "neg" : "pos"],
+    ["Average PMPM", money(s.averagePMPM, cur)],
+    ["Patients on new therapy", count(s.peakTreatedPatients)],
+    ["Largest cost driver", driver.label, null, `+${moneyShort(driver.diff, cur)}`],
+    ["Largest offset", offset.label, null, moneyShort(offset.diff, cur)],
+    ["Most sensitive assumption", mostSensitive ? mostSensitive.label : "—"],
+  ];
+
+  return (
+    <div className="card decision">
+      <div className="decision-head">
+        <div>
+          <span className="decision-eyebrow">Decision summary</span>
+          <h2>
+            {model.diseaseName.split(/[/(]/)[0].trim()} · {model.newIntervention.treatmentName}
+          </h2>
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+            {model.countryName} · {model.perspective} · {model.timeHorizonYears}-year horizon
+          </p>
+        </div>
+        <div className="decision-actions">
+          <button className="btn sm" onClick={onExport} disabled={exporting} title="Download a formatted PDF report">
+            <Icon name="pdf" size={14} /> {exporting ? "Preparing…" : "Save as PDF"}
+          </button>
+          <button className="btn primary sm" onClick={onSaveRun} title="Snapshot for comparison">
+            + Save run
+          </button>
+        </div>
+      </div>
+
+      <div className="decision-grid">
+        {stats.map(([label, value, tone, extra]) => (
+          <div className="decision-stat" key={label}>
+            <div className="ds-label">{label}</div>
+            <div className={`ds-value${tone ? " " + tone : ""}`}>{value}</div>
+            {extra && <div className="ds-extra">{extra}</div>}
+          </div>
+        ))}
+      </div>
+
+      <div className="recommendation">
+        <span className="rec-badge">Recommendation</span>
+        <p>{rec}</p>
+      </div>
+    </div>
+  );
+}
+
+/* Current market vs new drug, by cost component — the core BIA comparison. */
+function CompareTab({ model, result }) {
+  const cur = model.currency;
+  const cmp = result.comparison;
+  const s = result.summary;
+  const increases = cmp.difference >= 0;
+
+  const chartData = cmp.categories.map((c) => ({
+    name: c.label.replace(/ \(.*\)/, ""),
+    Current: c.current,
+    New: c.new,
+  }));
+
+  return (
+    <>
+      <div className="card">
+        <div className="card-head">
+          <h2>Current market vs new drug</h2>
+          <p>Total spend over {model.timeHorizonYears} years, split by cost component. Category totals reconcile exactly to the scenario totals.</p>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Cost component</th><th>Without intervention</th><th>With intervention</th><th>Difference</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Patients treated (patient-years)</td>
+                <td>{count(cmp.patientYears)}</td>
+                <td>{count(cmp.patientYears)}</td>
+                <td className="muted">—</td>
+              </tr>
+              {cmp.categories.map((c) => (
+                <tr key={c.key}>
+                  <td>{c.label}</td>
+                  <td>{money(c.current, cur)}</td>
+                  <td>{money(c.new, cur)}</td>
+                  <td style={{ color: c.diff >= 0 ? "var(--negative)" : "var(--positive)", fontWeight: 600 }}>
+                    {c.diff >= 0 ? "+" : ""}{money(c.diff, cur)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td>{money(cmp.totalCurrent, cur)}</td>
+                <td>{money(cmp.totalNew, cur)}</td>
+                <td style={{ color: increases ? "var(--negative)" : "var(--positive)" }}>
+                  {increases ? "+" : ""}{money(cmp.difference, cur)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div className={`conclusion ${increases ? "neg" : "pos"}`}>
+          <strong>Executive conclusion.</strong> Although the new intervention changes drug
+          acquisition by {money(cmp.categories[0].diff, cur)}, changes in administration, monitoring
+          and avoided medical events produce a net {increases ? "cost increase" : "saving"} of{" "}
+          <strong>{money(Math.abs(cmp.difference), cur)}</strong> over {model.timeHorizonYears} years.
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-head"><h2>Spend by cost component</h2></div>
+        <Legend2 items={[{ label: "Without intervention", color: SERIES[0] }, { label: "With intervention", color: SERIES[2] }]} />
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }} barGap={4}>
+            <CartesianGrid {...grid} />
+            <XAxis dataKey="name" {...axis} axisLine={false} interval={0} tick={{ fontSize: 10 }} />
+            <YAxis {...axis} axisLine={false} tickFormatter={(v) => moneyShort(v, cur)} width={72} />
+            <Tooltip contentStyle={tooltipStyle()} cursor={{ fill: "var(--sunken)" }} formatter={(v, n) => [money(v, cur), n]} />
+            <Bar dataKey="Current" name="Without intervention" fill={SERIES[0]} radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false} />
+            <Bar dataKey="New" name="With intervention" fill={SERIES[2]} radius={[4, 4, 0, 0]} maxBarSize={40} isAnimationActive={false} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </>
+  );
+}
+
+/* One-way sensitivity tornado. Bars span each parameter's low/high net impact,
+   split at the base case so the driving direction is visible. */
+function SensitivityTab({ torn, cur }) {
+  const all = torn.rows.flatMap((r) => [r.low, r.high, torn.base]);
+  const min = Math.min(...all);
+  const max = Math.max(...all);
+  const span = max - min || 1;
+  const pos = (v) => ((v - min) / span) * 100;
+  const basePos = pos(torn.base);
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <h2>Sensitivity — tornado</h2>
+        <p>Net budget impact when each assumption is moved ±{Math.round(torn.delta * 100)}%, most
+        influential first. The dashed line is the base case ({moneyShort(torn.base, cur)}).</p>
+      </div>
+
+      <div className="tornado">
+        {torn.rows.map((r) => {
+          const lo = Math.min(r.low, r.high);
+          const hi = Math.max(r.low, r.high);
+          const left = pos(lo);
+          const width = pos(hi) - left;
+          return (
+            <div className="tornado-row" key={r.key}>
+              <div className="tornado-label">{r.label}</div>
+              <div className="tornado-track">
+                <div className="tornado-base" style={{ left: `${basePos}%` }} />
+                <div
+                  className="tornado-bar"
+                  style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%` }}
+                  title={`${moneyShort(r.low, cur)} … ${moneyShort(r.high, cur)}`}
+                />
+                {left >= 9 && <span className="tornado-lo" style={{ left: `${left}%` }}>{moneyShort(lo, cur)}</span>}
+                <span className="tornado-hi" style={{ left: `${pos(hi)}%` }}>{moneyShort(hi, cur)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="muted" style={{ fontSize: 12.5, marginTop: 14, marginBottom: 0 }}>
+        The result depends most on <strong style={{ color: "var(--ink)" }}>{torn.rows[0]?.label.toLowerCase()}</strong>.
+        Early-stage price and uptake assumptions should be firmed up before decisions rely on the number.
+      </p>
+    </div>
+  );
+}
+
+/* Transparent calculation trace: funnel + per-patient cost buildup + net. */
+function MethodologyTab({ model, result }) {
+  const cur = model.currency;
+  const pp = result.perPatient;
+  const s = result.summary;
+
+  const rows = [
+    ["Drug acquisition", pp.currentDrug, pp.newDrug],
+    ["Administration", pp.currentAdmin, pp.newAdmin],
+    ["Monitoring / labs", pp.currentMonitoring, pp.newMonitoring],
+    ["Medical events (net of avoided)", pp.currentMedical, pp.newMedical],
+  ];
+
+  return (
+    <>
+      <div className="card">
+        <div className="card-head">
+          <h2>How the number is calculated</h2>
+          <p>Every figure below comes from your inputs — no hidden steps.</p>
+        </div>
+        <div className="method-chain">
+          <span>Covered population</span><i>× prevalence × diagnosed × clinical × payer × access × willingness</i>
+          <span className="arrow">↓</span>
+          <span><strong>Eligible patients</strong> = {count(s.year1EligiblePatients)} (year 1)</span>
+          <span className="arrow">↓</span>
+          <span>× current-care mix and new-drug uptake each year</span>
+          <span className="arrow">↓</span>
+          <span><strong>Patients treated</strong> = {count(s.peakTreatedPatients)} at peak</span>
+          <span className="arrow">↓</span>
+          <span>each patient costs: drug + administration + monitoring + medical events − avoided events</span>
+          <span className="arrow">↓</span>
+          <span><strong>Net budget impact</strong> = (with-intervention − without-intervention) spend = {money(s.netBudgetImpactTotal, cur)}</span>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-head">
+          <h2>Population funnel (year 1)</h2>
+          <p>How covered lives narrow to the treatable pool.</p>
+        </div>
+        <Funnel model={model} />
+      </div>
+
+      <div className="card">
+        <div className="card-head">
+          <h2>Annual cost per patient</h2>
+          <p>Blended current care vs the new intervention, adjusted for adherence and persistence.</p>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Component</th><th>Without intervention</th><th>With intervention</th></tr>
+            </thead>
+            <tbody>
+              {rows.map(([label, a, b]) => (
+                <tr key={label}>
+                  <td>{label}</td>
+                  <td>{money(a, cur)}</td>
+                  <td>{money(b, cur)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total per patient / year</td>
+                <td>{money(pp.currentTotal, cur)}</td>
+                <td>{money(pp.newTotal, cur)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </>
   );
 }

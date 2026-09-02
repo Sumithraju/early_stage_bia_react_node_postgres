@@ -88,6 +88,22 @@ export async function exportReport(model, result) {
     y + 16
   );
 
+  // Executive recommendation, wrapped.
+  const driver = s.biggestDriver;
+  const offset = s.biggestOffset;
+  const rec =
+    `Recommendation: ${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
+    `${model.perspective.toLowerCase()} budget by ${pdfShort(Math.abs(s.netBudgetImpactTotal), cur)} over ` +
+    `${model.timeHorizonYears} years (${pdfMoney(s.averagePMPM, cur)} PMPM). Largest driver: ` +
+    `${driver.label.toLowerCase()} (${pdfShort(driver.diff, cur)})` +
+    `${offset && offset.diff < 0 ? `, offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
+    `Validate price and uptake assumptions before reimbursement planning.`;
+  doc.setFontSize(9);
+  doc.setTextColor(...INK);
+  const recLines = doc.splitTextToSize(rec, W - M * 2);
+  doc.text(recLines, M, y + 34);
+  y += recLines.length * 11;
+
   /* ---- KPI grid ---- */
   const kpis = [
     ["Without intervention", pdfShort(s.currentCostTotal, cur)],
@@ -173,6 +189,32 @@ export async function exportReport(model, result) {
     columnStyles: { 0: { halign: "left" } },
     theme: "grid",
   });
+
+  /* ---- current vs new, by cost component ---- */
+  if (result.comparison) {
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 22,
+      margin: { left: M, right: M },
+      head: [["Cost component", "Without intervention", "With intervention", "Difference"]],
+      body: result.comparison.categories.map((c) => [
+        c.label,
+        pdfMoney(c.current, cur),
+        pdfMoney(c.new, cur),
+        (c.diff >= 0 ? "+" : "") + pdfMoney(c.diff, cur),
+      ]),
+      foot: [[
+        "Total",
+        pdfMoney(result.comparison.totalCurrent, cur),
+        pdfMoney(result.comparison.totalNew, cur),
+        (result.comparison.difference >= 0 ? "+" : "") + pdfMoney(result.comparison.difference, cur),
+      ]],
+      styles: { fontSize: 8, cellPadding: 4, textColor: INK, lineColor: LINE },
+      headStyles: { fillColor: INDIGO, textColor: [255, 255, 255], fontSize: 8 },
+      footStyles: { fillColor: [244, 244, 245], textColor: INK, fontStyle: "bold" },
+      columnStyles: { 0: { halign: "left" } },
+      theme: "grid",
+    });
+  }
 
   /* ---- scenarios ---- */
   doc.autoTable({

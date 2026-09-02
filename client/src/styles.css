@@ -411,3 +411,79 @@ tfoot td { font-weight: 650; border-top: 1px solid var(--border-strong); border-
   color: var(--brand); font-size: 11px; font-weight: 700;
 }
 th.run-current { color: var(--brand); }
+
+/* ---------- Decision summary + judge-facing sections ---------- */
+.scroll-tabs { overflow-x: auto; flex-wrap: nowrap; }
+.scroll-tabs .tab { flex-shrink: 0; }
+
+.card.decision { border-color: var(--brand-border); }
+.decision-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.decision-head h2 { margin: 4px 0 2px; font-size: 18px; }
+.decision-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--brand);
+}
+.decision-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.decision-grid {
+  display: grid; gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.decision-stat { background: var(--surface); padding: 13px 15px; }
+.ds-label { font-size: 11.5px; color: var(--ink-muted); margin-bottom: 5px; }
+.ds-value { font-size: 17px; font-weight: 650; letter-spacing: -.01em; line-height: 1.2; }
+.ds-value.pos { color: var(--positive); }
+.ds-value.neg { color: var(--negative); }
+.ds-extra { font-size: 12px; color: var(--ink-muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.recommendation {
+  margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-sm);
+  background: var(--brand-soft); border: 1px solid var(--brand-border);
+}
+.rec-badge {
+  display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--brand); margin-bottom: 6px;
+}
+.recommendation p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+
+.conclusion {
+  margin-top: 16px; padding: 13px 15px; border-radius: var(--radius-sm);
+  font-size: 13px; line-height: 1.6;
+  border-left: 3px solid var(--negative); background: var(--negative-soft);
+}
+.conclusion.pos { border-left-color: var(--positive); background: var(--positive-soft); }
+
+/* ---------- Tornado ---------- */
+.tornado { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.tornado-row { display: grid; grid-template-columns: 168px 1fr; align-items: center; gap: 12px; }
+.tornado-label { font-size: 12.5px; color: var(--ink-2); text-align: right; }
+.tornado-track { position: relative; height: 26px; }
+.tornado-bar {
+  position: absolute; top: 3px; height: 20px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--positive), var(--negative)); opacity: .85;
+}
+.tornado-base {
+  position: absolute; top: -2px; bottom: -2px; width: 0;
+  border-left: 1.5px dashed var(--ink-muted);
+}
+.tornado-lo, .tornado-hi {
+  position: absolute; top: 5px; font-size: 10.5px; color: var(--ink-muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.tornado-lo { transform: translateX(calc(-100% - 6px)); }
+.tornado-hi { transform: translateX(6px); }
+
+/* ---------- Methodology chain ---------- */
+.method-chain { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; }
+.method-chain span { color: var(--ink); }
+.method-chain i { color: var(--ink-muted); font-size: 12.5px; font-style: normal; }
+.method-chain .arrow { color: var(--brand); font-weight: 700; font-size: 14px; }
+
+@media (max-width: 600px) {
+  .tornado-row { grid-template-columns: 110px 1fr; }
+  .tornado-label { font-size: 11px; }
+}
