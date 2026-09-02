@@ -487,3 +487,30 @@ th.run-current { color: var(--brand); }
   .tornado-row { grid-template-columns: 110px 1fr; }
   .tornado-label { font-size: 11px; }
 }
+
+/* ---------- Waterfall bridge ---------- */
+.waterfall { margin-top: 6px; }
+.wf-plot {
+  position: relative; height: 260px; display: flex; gap: 10px;
+  padding: 26px 4px 4px;
+}
+.wf-zero {
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 1px solid var(--border-strong);
+}
+.wf-col { position: relative; flex: 1; }
+.wf-bar { position: absolute; left: 12%; width: 76%; border-radius: 3px; min-height: 2px; }
+.wf-val {
+  position: absolute; left: 0; right: 0; text-align: center;
+  font-size: 11px; font-weight: 600; color: var(--ink);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.wf-labels { display: flex; gap: 10px; margin-top: 8px; }
+.wf-labels .wf-label {
+  flex: 1; text-align: center; font-size: 11px; color: var(--ink-muted);
+  line-height: 1.3;
+}
+.wf-labels .wf-label.total { color: var(--brand); font-weight: 700; }
+
+.limits { margin: 0; padding-left: 18px; }
+.limits li { font-size: 13px; line-height: 1.6; margin-bottom: 6px; color: var(--ink-2); }
