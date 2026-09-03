@@ -15,6 +15,8 @@ import { parameterRouter } from "./routes/parameters.js";
 import { referenceRouter } from "./routes/reference.js";
 import { publicDataRouter } from "./routes/publicData.js";
 import { chatRouter, llmConfigured, llmProviderName } from "./routes/chat.js";
+import { evitrackRouter } from "./routes/evitrack.js";
+import { llmRouter } from "./routes/llm.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 import { startPublicSyncScheduler } from "./jobs/publicSyncScheduler.js";
 
@@ -89,6 +91,8 @@ app.use("/api/parameters", parameterRouter);
 app.use("/api/reference", referenceRouter);
 app.use("/api/public", publicDataRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/v1/evitrack", evitrackRouter);
+app.use("/api/v1/llm", llmRouter);
 
 /**
  * On Render this one web service also serves the Vite build, so the browser

@@ -1,4 +1,4 @@
-import { money, moneyShort, count, pct } from "./util.js";
+import { money, moneyRate, moneyShort, count, pct } from "./util.js";
 
 /**
  * jsPDF's built-in Helvetica has no rupee glyph (it renders as a stray
@@ -9,6 +9,8 @@ import { money, moneyShort, count, pct } from "./util.js";
 const SYMBOL = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
 const pdfMoney = (n, cur) => money(n, cur).replaceAll(SYMBOL[cur] || "", (cur || "") + " ");
 const pdfShort = (n, cur) => moneyShort(n, cur).replaceAll(SYMBOL[cur] || "", (cur || "") + " ");
+// Per-member rates need cents, or a PMPM of 0.21 prints as "0" in the report.
+const pdfRate = (n, cur) => moneyRate(n, cur).replaceAll(SYMBOL[cur] || "", (cur || "") + " ");
 
 /**
  * Client-side PDF report. jsPDF + autotable are ~150 kB gzipped and only needed
@@ -94,7 +96,7 @@ export async function exportReport(model, result) {
   const rec =
     `Recommendation: ${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
     `${model.perspective.toLowerCase()} budget by ${pdfShort(Math.abs(s.netBudgetImpactTotal), cur)} over ` +
-    `${model.timeHorizonYears} years (${pdfMoney(s.averagePMPM, cur)} PMPM). Largest driver: ` +
+    `${model.timeHorizonYears} years (${pdfRate(s.averagePMPM, cur)} PMPM). Largest driver: ` +
     `${driver.label.toLowerCase()} (${pdfShort(driver.diff, cur)})` +
     `${offset && offset.diff < 0 ? `, offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
     `Validate price and uptake assumptions before reimbursement planning.`;
@@ -108,9 +110,9 @@ export async function exportReport(model, result) {
   const kpis = [
     ["Without intervention", pdfShort(s.currentCostTotal, cur)],
     ["With intervention", pdfShort(s.newCostTotal, cur)],
-    ["Affordability - PMPM (Y1)", pdfMoney(s.year1PMPM, cur)],
+    ["Affordability - PMPM (Y1)", pdfRate(s.year1PMPM, cur)],
     ["Affordability - PMPY (Y1)", pdfMoney(s.year1PMPY, cur)],
-    ["Patients treated (peak)", count(s.peakTreatedPatients)],
+    ["Patients treated (peak)", count(s.peakTreatedPatients, cur)],
     ["Cost / treated patient", pdfMoney(s.costPerTreatedPatient, cur)],
     ["Break-even price", s.breakEvenAnnualPrice == null ? "n/a" : pdfMoney(s.breakEvenAnnualPrice, cur)],
     ["Hospital cost avoided", pdfShort(s.hospitalCostAvoidedTotal, cur)],
@@ -169,19 +171,19 @@ export async function exportReport(model, result) {
     head: [["Year", "Patients treated", "Without intervention", "With intervention", "Net impact", "PMPM"]],
     body: years.map((r) => [
       r.calendarYear,
-      count(r.newInterventionPatients),
+      count(r.newInterventionPatients, cur),
       pdfMoney(r.currentScenarioCost, cur),
       pdfMoney(r.newScenarioCost, cur),
       pdfMoney(r.netBudgetImpact, cur),
-      pdfMoney(r.pmpm, cur),
+      pdfRate(r.pmpm, cur),
     ]),
     foot: [[
       "Total",
-      count(s.treatedPatientYears),
+      count(s.treatedPatientYears, cur),
       pdfMoney(s.currentCostTotal, cur),
       pdfMoney(s.newCostTotal, cur),
       pdfMoney(s.netBudgetImpactTotal, cur),
-      pdfMoney(s.averagePMPM, cur),
+      pdfRate(s.averagePMPM, cur),
     ]],
     styles: { fontSize: 8, cellPadding: 4, textColor: INK, lineColor: LINE },
     headStyles: { fillColor: INDIGO, textColor: [255, 255, 255], fontSize: 8 },
@@ -224,9 +226,9 @@ export async function exportReport(model, result) {
     body: result.scenarios.map((sc) => [
       sc.label,
       `${(sc.uptakeScale * 100).toFixed(0)}% of base`,
-      count(sc.treatedPatientYears),
+      count(sc.treatedPatientYears, cur),
       pdfMoney(sc.netBudgetImpactTotal, cur),
-      pdfMoney(sc.year1PMPM, cur),
+      pdfRate(sc.year1PMPM, cur),
     ]),
     styles: { fontSize: 8, cellPadding: 4, textColor: INK, lineColor: LINE },
     headStyles: { fillColor: VIOLET, textColor: [255, 255, 255], fontSize: 8 },
@@ -245,10 +247,10 @@ export async function exportReport(model, result) {
       head: [["Clinical outcome", "Events avoided", "Cost avoided"]],
       body: result.eventsAvoided.map((e) => [
         e.outcomeName,
-        count(e.eventsAvoided),
+        count(e.eventsAvoided, cur),
         pdfMoney(e.costAvoided, cur),
       ]),
-      foot: [["Total", count(s.eventsAvoidedTotal), pdfMoney(s.hospitalCostAvoidedTotal, cur)]],
+      foot: [["Total", count(s.eventsAvoidedTotal, cur), pdfMoney(s.hospitalCostAvoidedTotal, cur)]],
       styles: { fontSize: 8, cellPadding: 4, textColor: INK, lineColor: LINE },
       headStyles: { fillColor: [13, 148, 136], textColor: [255, 255, 255], fontSize: 8 },
       footStyles: { fillColor: [244, 244, 245], textColor: INK, fontStyle: "bold" },

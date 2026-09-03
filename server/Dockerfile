@@ -5,7 +5,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY server/package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY server/src ./src
 COPY sql ./sql
