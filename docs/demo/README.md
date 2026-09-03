@@ -10,9 +10,9 @@ engine from exactly these inputs, so you can use it to check the tool is
 behaving before you present.
 
 > **All values are illustrative.** They are plausible for a demonstration but
-> are not drawn from a validated published source. The app labels the scenario
-> `● Demonstration data only` for exactly this reason. Do not present any
-> number here as evidence about a real product.
+> are not drawn from a validated published source. Any PDF you export from the
+> demo scenario carries that statement in its footer. Do not present any number
+> here as evidence about a real product.
 
 ## Starting the demo
 

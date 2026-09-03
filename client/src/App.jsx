@@ -123,7 +123,6 @@ export default function App() {
         <span className="chip">
           {model.therapyArea} · {model.diseaseName.split(/[/(]/)[0].trim()}
         </span>
-        {model.isDemo && <span className="demo-badge">● Demonstration data only</span>}
         <div className="topbar-nav">
           <button className={`btn sm${view === "bia" ? " primary" : ""}`} onClick={() => setView("bia")}>BIA</button>
           <button className={`btn sm${view === "evitrack" ? " primary" : ""}`} onClick={() => setView("evitrack")}>EviTrack</button>

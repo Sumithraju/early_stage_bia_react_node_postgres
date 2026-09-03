@@ -523,7 +523,7 @@ th.run-current { color: var(--brand); }
 .limits { margin: 0; padding-left: 18px; }
 .limits li { font-size: 13px; line-height: 1.6; margin-bottom: 6px; color: var(--ink-2); }
 
-/* ---------- KPI info tooltip + demo badge ---------- */
+/* ---------- KPI info tooltip ---------- */
 .kpi-info {
   display: inline-grid; place-items: center; width: 14px; height: 14px;
   margin-left: 5px; border-radius: 50%; background: var(--sunken);
@@ -531,9 +531,3 @@ th.run-current { color: var(--brand); }
   cursor: help; vertical-align: middle;
 }
 .kpi-info:hover { background: var(--brand-soft); color: var(--brand); }
-.demo-badge {
-  display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
-  border-radius: 999px; background: #FEF3C7; color: #92400E;
-  border: 1px solid #FDE68A; font-size: 11px; font-weight: 600;
-}
-:root:not([data-theme="light"]) .demo-badge { background: #422006; color: #FCD34D; border-color: #713F12; }

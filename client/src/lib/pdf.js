@@ -269,7 +269,9 @@ export async function exportReport(model, result) {
     doc.setFontSize(7.5);
     doc.setTextColor(...MUTED);
     doc.text(
-      "BIET early-stage estimate. Not a validated HTA submission model; review assumptions before decision use.",
+      model.isDemo
+        ? "BIET demonstration scenario - illustrative values, not real product data. Not a validated HTA submission model."
+        : "BIET early-stage estimate. Not a validated HTA submission model; review assumptions before decision use.",
       M,
       H - 20
     );
