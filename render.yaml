@@ -74,3 +74,11 @@ services:
 #     region: oregon
 #     postgresMajorVersion: "16"
 #     ipAllowList: []
+      # --- Optional AI assistant ---------------------------------------------
+      # Set these (Render dashboard, not committed) to enable free-form answers.
+      # Get a free key from Groq / OpenRouter / HuggingFace. Left unset, the
+      # assistant runs in local mode. See README "Enable the AI assistant".
+      # - key: LLM_API_KEY
+      #   sync: false
+      # - key: LLM_PROVIDER
+      #   value: groq
