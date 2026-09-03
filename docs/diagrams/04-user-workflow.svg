@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 470" width="980" height="470" role="img" aria-label="User workflow">
+<title>User workflow</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8A8A9C"/></marker></defs>
+<rect width="980" height="470" fill="#FFFFFF"/>
+<text x="40" y="34" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">ENTRY</text>
+<rect x="40" y="46" width="200" height="48" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="140.0" y="64.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Load demo</text>
+<text x="140.0" y="83.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">pre-filled</text>
+<path d="M140,94 L140,118 L490,118 L490,140" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round"/>
+<rect x="264" y="46" width="200" height="48" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="364.0" y="64.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Import Excel</text>
+<text x="364.0" y="83.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">importWorkbook</text>
+<path d="M364,94 L364,118 L490,118 L490,140" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="488" y="46" width="200" height="48" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="588.0" y="64.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Start blank</text>
+<text x="588.0" y="83.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">default model</text>
+<path d="M588,94 L588,118 L490,118 L490,140" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="40" y="168" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">CONFIGURE — six tabs, left to right</text>
+<rect x="40" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="106.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">1 Therapy area</text>
+<path d="M172,207 L192,207" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="192" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="258.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">2 Population</text>
+<path d="M324,207 L344,207" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="344" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="410.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">3 Current care</text>
+<path d="M476,207 L496,207" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="496" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="562.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">4 Intervention</text>
+<path d="M628,207 L648,207" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="648" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="714.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">5 Uptake</text>
+<path d="M780,207 L800,207" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="800" y="180" width="132" height="54" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="866.0" y="211.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">6 Outcomes</text>
+<path d="M490,140 L490,168" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round"/>
+<rect x="342" y="266" width="296" height="48" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="490.0" y="284.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">validateModelInput</text>
+<text x="490.0" y="303.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">shares · comparators · intervention</text>
+<path d="M866.0,234 L866.0,250 L490,250 L490,266" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="40" y="266" width="236" height="48" rx="7" fill="#FFF7ED" stroke="#FBD5A5" stroke-width="1.25"/>
+<text x="158.0" y="284.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#9A5B10">Error in the UI</text>
+<text x="158.0" y="303.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">returns to Current care</text>
+<path d="M342,290 L276,290" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<rect x="289.0" y="281.0" width="40.0" height="17" rx="4" fill="#FFFFFF" stroke="none"/>
+<text x="309.0" y="293.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" fill="#6B6B7B">fails</text>
+<rect x="342" y="348" width="296" height="48" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="490.0" y="366.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">calculateBudgetImpact</text>
+<text x="490.0" y="385.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">one synchronous pass</text>
+<path d="M490,314 L490,348" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="467.2" y="322.0" width="45.599999999999994" height="17" rx="4" fill="#FFFFFF" stroke="none"/>
+<text x="490.0" y="334.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" fill="#6B6B7B">passes</text>
+<rect x="704" y="266" width="236" height="130" rx="7" fill="#ECFDF8" stroke="#A7E8DC" stroke-width="1.25"/>
+<text x="822.0" y="325.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#0B6E64">Results — 7 views</text>
+<text x="822.0" y="344.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">export · save run · compare</text>
+<path d="M638,372 L672,372 L672,331 L704,331" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="40" y="440" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">A change to any input re-enters validation and recalculates immediately; there is no request in that path.</text>
+</svg>

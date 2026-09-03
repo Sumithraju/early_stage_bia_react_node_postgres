@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 500" width="1030" height="500" role="img" aria-label="EviTrack search sequence">
+<title>EviTrack search sequence</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8A8A9C"/></marker></defs>
+<rect width="1030" height="500" fill="#FFFFFF"/>
+<rect x="44.0" y="40" width="96" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="92" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">User</text>
+<line x1="92" y1="74" x2="92" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="215.3" y="40" width="105.4" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="268" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">EviTrack UI</text>
+<line x1="268" y1="74" x2="268" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="396.0" y="40" width="96" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="444" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">Express</text>
+<line x1="444" y1="74" x2="444" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="552.5" y="40" width="135.0" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="620" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">Source registry</text>
+<line x1="620" y1="74" x2="620" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="739.6" y="40" width="112.80000000000001" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="796" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">External API</text>
+<line x1="796" y1="74" x2="796" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="901.0" y="40" width="98.0" height="30" rx="6" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="950" y="60" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="11.5" font-weight="600" fill="#4338CA">PostgreSQL</text>
+<line x1="950" y1="74" x2="950" y2="430" stroke="#E3E3EA" stroke-width="1" stroke-dasharray="4 4"/>
+<path d="M92,102 L268,102" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="180.0" y="95" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">query + source</text>
+<path d="M268,134 L444,134" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="356.0" y="127" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">GET /api/v1/evitrack/search</text>
+<path d="M444,166 L620,166" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="532.0" y="159" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">resolve adapter</text>
+<path d="M620,198 L796,198" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="708.0" y="191" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">provider request</text>
+<path d="M796,230 L620,230" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="708.0" y="223" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">raw payload</text>
+<path d="M620,262 L444,262" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="532.0" y="255" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">normalised records</text>
+<rect x="408" y="286" width="596" height="76" rx="6" fill="none" stroke="#E3E3EA" stroke-width="1.25"/>
+<rect x="408" y="286" width="140" height="18" rx="6" fill="#F7F7FB" stroke="#E3E3EA" stroke-width="1"/>
+<text x="418" y="299" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" font-weight="600" fill="#6B6B7B">ALT · DATABASE SET</text>
+<path d="M444,328 L950,328" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="697.0" y="321" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">de-duplicate + insert</text>
+<text x="418" y="352" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" fill="#6B6B7B">else — persisted:false, the search still returns</text>
+<path d="M444,388 L268,388" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="356.0" y="381" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">results</text>
+<path d="M268,416 L92,416" stroke="#8A8A9C" stroke-width="1.4" fill="none" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<text x="180.0" y="409" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#6B6B7B">result cards</text>
+<text x="40" y="474" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">The optional block is the only branch: with no database the search returns identically and simply is not stored.</text>
+</svg>

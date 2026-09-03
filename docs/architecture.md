@@ -55,40 +55,7 @@ retained so the REST API stays usable for scripted or programmatic runs.
 
 ## 2. System architecture
 
-```mermaid
-flowchart TB
-    subgraph browser["Browser — React SPA · no network dependency"]
-        direction LR
-        UI["Input tabs<br/>steps/Steps.jsx"] --> ENG["Calculation engine<br/>lib/biaEngine.js"]
-        ENG --> RES["Results — 7 views<br/>pages/Results.jsx"]
-        RES --> EXP["Exports<br/>lib/pdf.js · lib/excel.js"]
-        SESS[("sessionStorage<br/>model + saved runs")]
-        UI <--> SESS
-        EVI["EviTrack UI<br/>features/evitrack"]
-    end
-
-    subgraph server["Render web service — Express · single origin"]
-        direction LR
-        STATIC["Static host<br/>serves client/dist"]
-        REST["/api/model · /api/import<br/>/api/parameters · /api/reference"]
-        EVR["/api/v1/evitrack<br/>evidence search"]
-        LLMP["/api/chat · /api/v1/llm<br/>LLM proxy"]
-    end
-
-    subgraph ext["External services"]
-        direction LR
-        SRC["PubMed · ClinicalTrials.gov<br/>openFDA · WHO GHO · World Bank"]
-        AI["Groq · Gemini"]
-    end
-
-    DB[("PostgreSQL 16 — optional")]
-
-    browser -->|"HTTPS, same origin"| server
-    EVR --> SRC
-    LLMP --> AI
-    EVR -.->|"if configured"| DB
-    REST -.->|"if configured"| DB
-```
+![BIET system architecture: browser, Express service, external services and optional database](diagrams/01-system-architecture.svg)
 
 Everything inside the browser box runs with no network dependency at all. The
 dashed edges to PostgreSQL are genuinely optional: with no `DATABASE_URL` the
@@ -111,16 +78,7 @@ for any non-`/api` path so client-side routing works on refresh.
 A single run moves through five phases. Phases 1 and 5 are the user's; 2 to 4
 are one synchronous pass through `calculateBudgetImpact()`.
 
-```mermaid
-flowchart LR
-    A["1 · Configure<br/>six input tabs"] --> B["2 · Validate<br/>validateModelInput"]
-    B --> C["3 · Project<br/>year-by-year loop"]
-    C --> D["4 · Derive<br/>scenarios · break-even<br/>sensitivity · events"]
-    D --> E["5 · Present<br/>7 result views"]
-    E --> F["Export<br/>PDF · Excel"]
-    E --> G["Save run<br/>compare 1 · 2 · 3"]
-    B -.->|"throws"| X["Error shown<br/>in the UI"]
-```
+![Five calculation phases from configure to present](diagrams/02-calculation-phases.svg)
 
 **Phase 1 — Configure.** Six tabs, each writing into one `model` object held in
 React state and mirrored to `sessionStorage`. Switching disease reloads a whole
@@ -150,18 +108,7 @@ recalculated per tab — switching tabs is a render, not a run.
 This is the heart of the model, and it is where most of a reviewer's questions
 land. Each step multiplies the one above it:
 
-```mermaid
-flowchart TB
-    P["Covered population"] --> D["× prevalence<br/>+ cumulative incidence"]
-    D --> DX["× diagnosed share"]
-    DX --> CE["× clinically eligible"]
-    CE --> PE["× payer eligible"]
-    PE --> AC["× able to access"]
-    AC --> WT["× willing to treat"]
-    WT --> EL["Eligible patients"]
-    EL --> TR["× uptake, per year"]
-    TR --> PT["Patients on the new drug"]
-```
+![Population funnel from 8,000,000 covered lives to 181,764 eligible patients](diagrams/03-population-funnel.svg)
 
 Prevalence and incidence are separate inputs on purpose. Prevalence is the
 standing pool; incidence adds new cases each year. A prevalence-only model
@@ -267,61 +214,11 @@ adverse-event cost, and covered population. Results are sorted by swing.
 
 ## 6. User workflow
 
-```mermaid
-flowchart TD
-    START(["Open app"]) --> CH{"Start from?"}
-    CH -->|"Load demo"| DEMO["Demo scenario loaded<br/>lands on Therapy area"]
-    CH -->|"Import Excel"| IMP["importWorkbook<br/>maps sheets to model"]
-    CH -->|"Blank"| BLANK["Default model"]
-
-    DEMO & IMP & BLANK --> S1["1 Therapy area<br/>disease · country · horizon"]
-    S1 --> S2["2 Population<br/>funnel rates"]
-    S2 --> S3["3 Current care<br/>comparators + shares"]
-    S3 --> S4["4 Intervention<br/>new drug costs"]
-    S4 --> S5["5 Uptake<br/>adoption per year"]
-    S5 --> S6["6 Outcomes<br/>events + relative risk"]
-    S6 --> VAL{"validateModelInput"}
-    VAL -->|"fails"| ERR["Error message<br/>naming the failing rule"]
-    ERR --> S3
-    VAL -->|"passes"| CALC["calculateBudgetImpact"]
-    CALC --> R["Results — 7 views"]
-    R --> OUT{"Then what?"}
-    OUT -->|"Export"| PDFX["PDF or Excel"]
-    OUT -->|"Save run"| RUNS["Compare run 1 · 2 · 3"]
-    OUT -->|"Change an input"| S2
-    OUT -->|"Find evidence"| EV["EviTrack"]
-```
+![User workflow from entry through the six input tabs to results](diagrams/04-user-workflow.svg)
 
 ### EviTrack search sequence
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant C as EviTrack UI
-    participant S as Express
-    participant R as Source registry
-    participant X as External API
-    participant D as PostgreSQL
-
-    U->>C: query + source
-    C->>S: GET /api/v1/evitrack/search
-    S->>R: resolve source adapter
-    R->>X: provider-specific request
-    X-->>R: raw payload
-    R-->>S: normalised records
-    alt database configured
-        S->>D: de-duplicate on (source, source_id), insert
-        D-->>S: evidence_id per record
-    else no database
-        S-->>S: skip persistence, persisted:false
-    end
-    S-->>C: results
-    opt LLM key configured
-        C->>S: POST /api/v1/llm/search-insights
-        S-->>C: one insight per result
-    end
-    C-->>U: result cards
-```
+![EviTrack search sequence across UI, Express, source registry, external API and database](diagrams/05-evitrack-sequence.svg)
 
 ---
 
@@ -337,22 +234,7 @@ model in `sessionStorage`. The schema exists for reference data, provenance
 tracking, and run history — capabilities we want in a production version and
 have built the storage for, but which the demo does not depend on.
 
-```mermaid
-erDiagram
-    disease_master ||--o{ subgroup_master : "has"
-    disease_master ||--o{ model_parameter : "parameterised by"
-    disease_master ||--o{ treatment : "treated by"
-    disease_master ||--o{ clinical_outcome : "measured by"
-    disease_master ||--o{ scenario : "runs"
-    treatment ||--o{ treatment_cost : "costed in"
-    treatment ||--o{ market_share : "holds"
-    scenario ||--o{ scenario_parameter : "overrides"
-    scenario ||--o{ budget_impact_run : "produces"
-    source_registry ||--o{ model_parameter : "sources"
-    source_registry ||--o{ treatment_cost : "sources"
-    import_job ||--o{ model_parameter : "loads"
-    evidence_records }o--|| source_registry : "retrieved from"
-```
+![Database schema: 14 tables grouped by role](diagrams/06-database-schema.svg)
 
 ### Table reference
 

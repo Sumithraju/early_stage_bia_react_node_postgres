@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 620" width="980" height="620" role="img" aria-label="BIET system architecture">
+<title>BIET system architecture</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8A8A9C"/></marker></defs>
+<rect width="980" height="620" fill="#FFFFFF"/>
+<rect x="30" y="34" width="920" height="178" rx="10" fill="#F7F7FB" stroke="#E3E3EA" stroke-width="1"/>
+<text x="46" y="56" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="600" letter-spacing="1.1" fill="#6B6B7B">BROWSER · REACT SPA — NO NETWORK DEPENDENCY</text>
+<rect x="54" y="76" width="200" height="62" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="154.0" y="101.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">Input tabs</text>
+<text x="154.0" y="120.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">steps/Steps.jsx</text>
+<path d="M254,107 L278,107" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="278" y="76" width="200" height="62" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="378.0" y="101.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">Calculation engine</text>
+<text x="378.0" y="120.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">lib/biaEngine.js</text>
+<path d="M478,107 L502,107" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="502" y="76" width="200" height="62" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="602.0" y="101.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">Results — 7 views</text>
+<text x="602.0" y="120.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">pages/Results.jsx</text>
+<path d="M702,107 L726,107" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="726" y="76" width="200" height="62" rx="7" fill="#EEF2FF" stroke="#B9C2FA" stroke-width="1.25"/>
+<text x="826.0" y="101.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#4338CA">Exports</text>
+<text x="826.0" y="120.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">pdf.js · excel.js</text>
+<rect x="54" y="158" width="200" height="40" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="154.0" y="182.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">sessionStorage</text>
+<rect x="726" y="158" width="200" height="40" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="826.0" y="182.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">EviTrack UI</text>
+<path d="M154.0,138 L154.0,158" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M140.0,158 L140.0,138" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="30" y="268" width="920" height="128" rx="10" fill="#F7F7FB" stroke="#E3E3EA" stroke-width="1"/>
+<text x="46" y="290" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="600" letter-spacing="1.1" fill="#6B6B7B">RENDER WEB SERVICE · EXPRESS — SINGLE ORIGIN</text>
+<rect x="54" y="308" width="200" height="62" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="154.0" y="333.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Static host</text>
+<text x="154.0" y="352.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">serves client/dist</text>
+<rect x="278" y="308" width="200" height="62" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="378.0" y="333.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">REST API</text>
+<text x="378.0" y="352.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">/api/model · /api/import</text>
+<rect x="502" y="308" width="200" height="62" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="602.0" y="333.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Evidence API</text>
+<text x="602.0" y="352.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">/api/v1/evitrack</text>
+<rect x="726" y="308" width="200" height="62" rx="7" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25"/>
+<text x="826.0" y="333.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">LLM proxy</text>
+<text x="826.0" y="352.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">/api/chat · /api/v1/llm</text>
+<path d="M490,212 L490,268" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="430.8" y="231.0" width="118.39999999999999" height="17" rx="4" fill="#FFFFFF" stroke="none"/>
+<text x="490.0" y="243.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" fill="#6B6B7B">HTTPS · same origin</text>
+<rect x="482" y="452" width="468" height="128" rx="10" fill="#F7F7FB" stroke="#E3E3EA" stroke-width="1"/>
+<text x="498" y="474" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" font-weight="600" letter-spacing="1.1" fill="#6B6B7B">EXTERNAL SERVICES</text>
+<rect x="502" y="492" width="200" height="62" rx="7" fill="#ECFDF8" stroke="#A7E8DC" stroke-width="1.25"/>
+<text x="602.0" y="517.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#0B6E64">Evidence sources</text>
+<text x="602.0" y="536.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">PubMed · trials · FDA · WHO</text>
+<rect x="726" y="492" width="200" height="62" rx="7" fill="#ECFDF8" stroke="#A7E8DC" stroke-width="1.25"/>
+<text x="826.0" y="517.5" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#0B6E64">LLM providers</text>
+<text x="826.0" y="536.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">Groq · Gemini</text>
+<path d="M602.0,370 L602.0,492" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M826.0,370 L826.0,492" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M278,501 a100.0,9 0 0 1 200,0 v44 a100.0,9 0 0 1 -200,0 z" fill="#FFFFFF" stroke="#CBCBD8" stroke-width="1.25" stroke-dasharray="5 4"/>
+<path d="M278,501 a100.0,9 0 0 0 200,0" fill="none" stroke="#CBCBD8" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="378.0" y="521.0" text-anchor="middle" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">PostgreSQL 16</text>
+<text x="378.0" y="538.0" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">optional</text>
+<path d="M378.0,370 L378.0,492" fill="none" stroke="#8A8A9C" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<rect x="335.6" y="422.0" width="84.8" height="17" rx="4" fill="#FFFFFF" stroke="none"/>
+<text x="378.0" y="434.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="9.5" fill="#6B6B7B">if configured</text>
+<text x="30" y="600" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">Every connector is a straight drop within its column. Dashed = optional: with no DATABASE_URL the REST and evidence APIs run without persistence.</text>
+</svg>
