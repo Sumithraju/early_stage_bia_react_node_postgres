@@ -3,9 +3,10 @@
 
 A full-stack proof-of-concept for a disease-agnostic early-stage Budget Impact Analysis (BIA) platform.
 
-**New here? Start with the [demo guide](docs/demo/README.md)** — a tab-by-tab
+**New here?** Start with the [demo guide](docs/demo/README.md) — a tab-by-tab
 walkthrough of the built-in scenario with screenshots, the inputs to enter, and
-the numbers you should see.
+the numbers you should see. For how the system is put together, see the
+[architecture and test documentation](docs/architecture.md).
 
 ### Main features
 
