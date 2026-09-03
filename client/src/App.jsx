@@ -8,6 +8,7 @@ import Icon from "./components/Icons.jsx";
 import { clearSession, loadSession, saveSession } from "./lib/util.js";
 import { downloadTemplate, importWorkbook } from "./lib/excel.js";
 import Results from "./pages/Results.jsx";
+import EviTrack from "./features/evitrack/EviTrack.jsx";
 import {
   StepComparators, StepIntervention, StepOutcomes,
   StepPopulation, StepTherapy, StepUptake,
@@ -26,6 +27,7 @@ export default function App() {
   const [model, setModel] = useState(() => loadSession(getDefaultModel()));
   const [stepIndex, setStepIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [view, setView] = useState("bia");
   const [notice, setNotice] = useState(null);
   const [runs, setRuns] = useState(loadRuns);
   const fileRef = useRef(null);
@@ -44,11 +46,20 @@ export default function App() {
     setNotice({ kind: "info", text: `Loaded default ${short} model.` });
   };
 
+  // Loads the demo INPUTS and stays on step 1. Jumping straight to Results
+  // skipped the part a demo is meant to show -- where the numbers come from --
+  // so every tab is now pre-filled and you walk them in order.
   const loadDemo = () => {
     setModel(demoScenario());
     setStepIndex(0);
-    setShowResults(true);
-    setNotice({ kind: "info", text: "Loaded demonstration scenario: Drug X in Germany (Type 2 diabetes). All values are illustrative demonstration data only." });
+    setShowResults(false);
+    setNotice({
+      kind: "info",
+      text:
+        "Demonstration scenario loaded: Drug X in Germany (Type 2 diabetes). " +
+        "Every tab is pre-filled -- walk through them in order and open Results at the end. " +
+        "All values are illustrative demonstration data only.",
+    });
   };
 
   const onSaveRun = () => {
@@ -113,6 +124,10 @@ export default function App() {
           {model.therapyArea} · {model.diseaseName.split(/[/(]/)[0].trim()}
         </span>
         {model.isDemo && <span className="demo-badge">● Demonstration data only</span>}
+        <div className="topbar-nav">
+          <button className={`btn sm${view === "bia" ? " primary" : ""}`} onClick={() => setView("bia")}>BIA</button>
+          <button className={`btn sm${view === "evitrack" ? " primary" : ""}`} onClick={() => setView("evitrack")}>EviTrack</button>
+        </div>
         <span className="topbar-spacer" />
         <input
           ref={fileRef} type="file" accept=".xlsx,.xls"
@@ -130,7 +145,8 @@ export default function App() {
         <button className="btn ghost sm" onClick={reset} title="Clear everything and reload the default model">Reset</button>
       </header>
 
-      <nav className="stepper">
+      {view === "bia" && (
+        <nav className="stepper">
         {STEPS.map((s, i) => (
           <button
             key={s.id}
@@ -155,9 +171,11 @@ export default function App() {
           <span className="num"><Icon name="results" size={14} /></span>
           Results
         </button>
-      </nav>
+        </nav>
+      )}
 
-      <main className="main">
+      {view === "bia" ? (
+        <main className="main">
         {notice && (
           <div className={`alert${notice.kind === "info" ? " info" : ""}`}>
             <span>{notice.text}</span>
@@ -216,9 +234,16 @@ export default function App() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      ) : (
+        <main className="main">
+          <EviTrack />
+        </main>
+      )}
 
-      <Assistant model={model} result={result} />
+      {view === "bia" && (
+        <Assistant model={model} result={result} />
+      )}
     </div>
   );
 }

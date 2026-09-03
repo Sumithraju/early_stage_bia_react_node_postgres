@@ -329,10 +329,18 @@ tfoot td { font-weight: 650; border-top: 1px solid var(--border-strong); border-
 }
 
 /* ---------- Assistant ---------- */
+/* BIA / EviTrack view switch. Without a width the two buttons wrap onto a
+   second row in the already-busy top bar. */
+.topbar-nav { display: flex; gap: 6px; flex-shrink: 0; }
+.topbar-nav .btn { white-space: nowrap; }
+
 .assistant-fab {
   position: fixed; right: 22px; bottom: 22px; z-index: 40;
   width: 56px; height: 56px; border-radius: 50%;
-  border: none; cursor: pointer;
+  border: none; cursor: pointer; padding: 0;
+  /* Flex-centre the glyph: a block-level SVG in a button otherwise sits on the
+     text baseline and reads as off-centre. */
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, var(--brand), var(--accent));
   color: #fff; font-size: 15px; font-weight: 650;
   box-shadow: var(--shadow-lg); transition: transform .12s;
