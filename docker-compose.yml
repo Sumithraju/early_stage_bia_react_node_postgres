@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - bia_pgdata:/var/lib/postgresql/data
       - ./sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
@@ -22,11 +22,21 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
+      args:
+        HTTP_PROXY: ${http_proxy}
+        HTTPS_PROXY: ${https_proxy}
+        NO_PROXY: ${no_proxy}
     environment:
+      HTTP_PROXY: ${http_proxy}
+      HTTPS_PROXY: ${https_proxy}
+      NO_PROXY: ${no_proxy}
       PORT: 4000
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bia
       CLIENT_ORIGIN: http://localhost:5173
       ENABLE_PUBLIC_SYNC: "true"
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
     ports:
       - "4000:4000"
     depends_on:
@@ -37,6 +47,8 @@ services:
     build: ./client
     environment:
       VITE_API_URL: http://localhost:4000/api
+      NO_PROXY: ${no_proxy},server
+      no_proxy: ${no_proxy},server
     ports:
       - "5173:5173"
     depends_on:
