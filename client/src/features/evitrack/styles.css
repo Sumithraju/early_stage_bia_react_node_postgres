@@ -1,48 +1,389 @@
+/* ============================================================
+   EviTrack — evidence search and curation.
+
+   Uses the app's design tokens so this module reads as the same
+   product as the BIA side. Card, button and alert shapes are
+   deliberately identical to .card / .btn / .alert in styles.css.
+   ============================================================ */
+
 .evitrack {
-  padding: 28px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 4px 0 40px;
 }
+
+/* ---------- page header ---------- */
 
 .evitrack-header {
-  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
 }
-
 .evitrack-header h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+.evitrack-header p {
   margin: 0;
+  color: var(--ink-muted);
+  font-size: 13.5px;
+}
+.evitrack-count {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  padding: 5px 12px;
 }
 
-.evitrack-header p {
-  margin-top: 6px;
-}
+/* ---------- search bar ---------- */
 
 .evitrack-search {
-  display: grid;
-  grid-template-columns: auto 180px minmax(320px, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
-
 .evitrack-search label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ink-muted);
   white-space: nowrap;
 }
-
 .evitrack-search select {
-  min-width: 0;
-  width: 180px;
-  padding: 10px 12px;
+  width: auto;
+  min-width: 168px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
 }
-
 .evitrack-search input {
+  flex: 1;
   min-width: 0;
-  width: 100%;
-  padding: 12px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
 }
+.evitrack-search input:focus,
+.evitrack-search select:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.evitrack-search input::placeholder { color: var(--ink-muted); }
+
+/* ---------- section shell (matches .card) ---------- */
 
 .evitrack-section {
-  margin-top: 24px;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin-bottom: 16px;
 }
+.evitrack-section > h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+.evitrack-section > p {
+  margin: 0 0 4px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.evitrack-workspace-header,
+.evitrack-chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.evitrack-workspace-header h3,
+.evitrack-chart-header h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+.evitrack-workspace-header p,
+.evitrack-chart-header p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+/* ---------- result card ---------- */
+
+.evitrack-result {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.evitrack-result:first-of-type { border-top: none; padding-top: 8px; }
+.evitrack-result:last-child { padding-bottom: 4px; }
+
+/* Meta row: source, year, evidence type, relevance. Kept on one line so
+   "PubMed" and "2021" never run together the way stacked <p>s did. */
+.evitrack-result-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.evitrack-source {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+.evitrack-year {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.evitrack-type {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+  text-transform: capitalize;
+}
+.evitrack-type::before {
+  content: "·";
+  margin-right: 8px;
+  color: var(--border-strong);
+}
+.evitrack-relevance {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.evitrack-result h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.evitrack-result h4 a { color: inherit; text-decoration: none; }
+.evitrack-result h4 a:hover { color: var(--brand); text-decoration: underline; }
+
+.evitrack-authors {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.evitrack-doi {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  word-break: break-all;
+}
+
+.evitrack-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Anchors and buttons must look identical here, so both get .btn shape. */
+.evitrack-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  text-decoration: none;
+  cursor: pointer;
+  transition: .12s;
+}
+.evitrack-button:hover:not(:disabled) { background: var(--sunken); }
+.evitrack-button:disabled { opacity: .5; cursor: not-allowed; }
+.evitrack-button.primary {
+  background: var(--brand); border-color: var(--brand); color: #fff;
+}
+.evitrack-button.primary:hover:not(:disabled) {
+  background: var(--brand-hover); border-color: var(--brand-hover);
+}
+.evitrack-button.added {
+  background: var(--positive-soft);
+  border-color: color-mix(in srgb, var(--positive) 35%, transparent);
+  color: var(--positive);
+}
+
+/* ---------- AI explanation ---------- */
+
+.evitrack-explanation {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--sunken);
+  border-left: 3px solid var(--brand);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.evitrack-explanation strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-muted);
+}
+.evitrack-explanation p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.evitrack-explanation-error {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- states ---------- */
+
+.evitrack-empty {
+  margin: 0;
+  padding: 28px 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+.evitrack-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+.evitrack-spinner {
+  width: 14px; height: 14px; flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: evitrack-spin .7s linear infinite;
+}
+@keyframes evitrack-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .evitrack-spinner { animation: none; border-top-color: var(--border-strong); }
+}
+
+/* ---------- markdown summary ---------- */
+
+.evitrack-summary-content { font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.evitrack-summary-content > :first-child { margin-top: 0; }
+.evitrack-summary-content > :last-child { margin-bottom: 0; }
+.evitrack-summary-content h1,
+.evitrack-summary-content h2,
+.evitrack-summary-content h3 {
+  font-size: 14px; font-weight: 650; color: var(--ink); margin: 16px 0 6px;
+}
+.evitrack-summary-content ul,
+.evitrack-summary-content ol { padding-left: 20px; margin: 8px 0; }
+.evitrack-summary-content li { margin-bottom: 4px; }
+.evitrack-summary-content code {
+  font-family: var(--mono); font-size: 12px;
+  background: var(--sunken); padding: 1px 5px; border-radius: 4px;
+}
+.evitrack-summary-content table {
+  width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px;
+}
+.evitrack-summary-content th,
+.evitrack-summary-content td {
+  border: 1px solid var(--border); padding: 6px 9px; text-align: left;
+}
+.evitrack-summary-content th { background: var(--sunken); font-weight: 650; }
+
+@media (max-width: 720px) {
+  .evitrack-search { flex-wrap: wrap; }
+  .evitrack-search input { flex-basis: 100%; order: 3; }
+  .evitrack-relevance { margin-left: 0; }
+}
+
+/* ---------- workspace assistant ---------- */
+
+.evitrack-model-tag {
+  display: inline-block;
+  margin-left: 9px;
+  vertical-align: middle;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ink-muted);
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.evitrack-hint {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+.evitrack-ask-input {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+.evitrack-ask-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.evitrack-ask-input::placeholder { color: var(--ink-muted); }

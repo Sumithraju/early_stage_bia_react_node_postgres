@@ -80,9 +80,12 @@ export default function EviTrack() {
       const data = await response.json();
 
       if (!response.ok) {
+        // 503 means no LLM key is configured. Search results are still
+        // perfectly usable, so this reads as a note, not a failure.
         throw new Error(
-          data.detail ||
-            `${selectedModel} insights failed (${response.status})`,
+          response.status === 503
+            ? "AI insights are not switched on for this deployment — search results below are unaffected."
+            : data.error || data.detail || "The AI service did not respond.",
         );
       }
 
@@ -238,31 +241,39 @@ export default function EviTrack() {
         onSearch={handleSearch}
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
+        provider={llmStatus?.provider ?? null}
+        llmKnown={Boolean(llmStatus)}
+        searching={loading}
       />
 
       {loading && (
-        <p>Searching evidence...</p>
+        <p className="evitrack-status">
+          <span className="evitrack-spinner" aria-hidden="true" />
+          Searching PubMed, ClinicalTrials.gov, openFDA, WHO and the World Bank…
+        </p>
       )}
 
       {error && (
-        <p role="alert">{error}</p>
+        <div className="alert" role="alert">
+          <span>{error}</span>
+        </div>
       )}
 
       {!loading &&
         !error &&
         insightLoading &&
         results.length > 0 && (
-          <p>
-            {selectedModel} is generating key evidence
-            insights...
+          <p className="evitrack-status">
+            <span className="evitrack-spinner" aria-hidden="true" />
+            Generating evidence insights with {selectedModel}…
           </p>
         )}
 
       {!loading &&
         !error &&
-        insightError && (
-          <p role="alert">
-            {selectedModel} insights unavailable:{" "}
+        insightError &&
+        llmStatus?.configured !== false && (
+          <p className="evitrack-explanation-error" role="alert">
             {insightError}
           </p>
         )}
