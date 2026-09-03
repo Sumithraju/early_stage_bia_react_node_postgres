@@ -71,6 +71,35 @@ Public source records are versioned. A user override does not destroy the public
 
 ---
 
+## Enable the AI assistant (optional)
+
+The assistant works out of the box in **Local mode** — it answers budget-impact
+questions from a built-in knowledge base grounded in your live results, with no
+key and no network. To upgrade it to free-form LLM answers, add a free key.
+
+**Recommended — server-side (secure, any provider).** Get a free key, then set
+these as environment variables on the web service (Render → the service →
+Environment). The key stays on the server and never reaches the browser.
+
+| Variable | Example | Notes |
+| --- | --- | --- |
+| `LLM_API_KEY` | *your key* | Enables the assistant's AI mode |
+| `LLM_PROVIDER` | `groq` | `groq` (free Llama), `openrouter`, `huggingface`, or `xai` |
+| `LLM_MODEL` | *(optional)* | Override the provider's default model |
+
+Free keys: [Groq](https://console.groq.com/keys) (Llama 3.3, fast),
+[OpenRouter](https://openrouter.ai/keys), [HuggingFace](https://huggingface.co/settings/tokens).
+The server proxies `/api/chat`, so browser CORS and key exposure are not an issue.
+
+**Browser-only alternative.** Open the assistant's gear icon and paste an
+OpenRouter key — session-only, never committed. (OpenRouter allows direct browser
+calls; Groq/HuggingFace/xAI need the server option above.)
+
+The app never invents clinical or cost values — the assistant only explains the
+numbers the model computed.
+
+---
+
 ## Deploy to Render
 
 The repository ships a Render Blueprint (`render.yaml`). It provisions a single
