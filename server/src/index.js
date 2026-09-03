@@ -14,6 +14,7 @@ import { importRouter } from "./routes/import.js";
 import { parameterRouter } from "./routes/parameters.js";
 import { referenceRouter } from "./routes/reference.js";
 import { publicDataRouter } from "./routes/publicData.js";
+import { chatRouter, llmConfigured, llmProviderName } from "./routes/chat.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 import { startPublicSyncScheduler } from "./jobs/publicSyncScheduler.js";
 
@@ -61,6 +62,7 @@ app.get("/api/health", async (req, res) => {
     return res.json({
       status: "ok",
       database: "not configured",
+      llm: llmConfigured() ? llmProviderName() : "not configured",
       note: "The BIET interface computes in the browser and needs no database.",
       serverTime: new Date().toISOString(),
     });
@@ -68,7 +70,7 @@ app.get("/api/health", async (req, res) => {
 
   try {
     const db = await query("SELECT now() as now");
-    res.json({ status: "ok", database: "connected", serverTime: db.rows[0].now });
+    res.json({ status: "ok", database: "connected", llm: llmConfigured() ? llmProviderName() : "not configured", serverTime: db.rows[0].now });
   } catch (error) {
     // Reachability is a data-layer problem, not a reason to report the served
     // UI as down, so this stays a 200 with a degraded database field.
@@ -86,6 +88,7 @@ app.use("/api/import", importRouter);
 app.use("/api/parameters", parameterRouter);
 app.use("/api/reference", referenceRouter);
 app.use("/api/public", publicDataRouter);
+app.use("/api/chat", chatRouter);
 
 /**
  * On Render this one web service also serves the Vite build, so the browser

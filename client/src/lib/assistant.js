@@ -150,6 +150,44 @@ export function answerLocally(question, ctx) {
   return FALLBACK;
 }
 
+/* ---------------- server-proxied LLM (recommended) ---------------- */
+
+/**
+ * Ask the app's own /api/chat proxy, which forwards to whatever free provider is
+ * configured server-side (Groq / OpenRouter / HuggingFace / xAI). The key never
+ * touches the browser. Returns null if the server has no LLM configured, so the
+ * caller can fall back to local answers.
+ */
+export async function serverLLMStatus() {
+  try {
+    const res = await fetch("/api/chat/status", { headers: { Accept: "application/json" } });
+    if (!res.ok) return { configured: false };
+    return await res.json();
+  } catch {
+    return { configured: false };
+  }
+}
+
+export async function askServer(question, history, ctx) {
+  const messages = [
+    { role: "system", content: systemPrompt(ctx) },
+    ...history.map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text })),
+    { role: "user", content: question },
+  ];
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages }),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Server LLM error (${res.status}).`);
+  }
+  const data = await res.json();
+  if (!data.reply) throw new Error("Empty response from the server LLM.");
+  return data.reply;
+}
+
 /* ---------------- optional QWEN via OpenRouter ---------------- */
 
 const QWEN_SETTINGS_KEY = "biet.qwen.v1";
