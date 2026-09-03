@@ -180,8 +180,10 @@ export async function askServer(question, history, ctx) {
     body: JSON.stringify({ messages }),
   });
   if (!res.ok) {
-    const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.error || `Server LLM error (${res.status}).`);
+    const body = await res.json().catch(() => ({}));
+    const parts = [body.error || `Server LLM error (${res.status})`];
+    if (body.detail) parts.push(body.detail);
+    throw new Error(parts.join(" — "));
   }
   const data = await res.json();
   if (!data.reply) throw new Error("Empty response from the server LLM.");

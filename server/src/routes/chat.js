@@ -18,19 +18,23 @@ import express from "express";
 const PROVIDERS = {
   groq: {
     url: "https://api.groq.com/openai/v1/chat/completions",
-    model: "llama-3.3-70b-versatile",
+    models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "llama3-8b-8192"],
   },
   openrouter: {
     url: "https://openrouter.ai/api/v1/chat/completions",
-    model: "meta-llama/llama-3.3-70b-instruct:free",
+    models: [
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "meta-llama/llama-3.1-8b-instruct:free",
+      "qwen/qwen-2.5-7b-instruct:free",
+    ],
   },
   huggingface: {
     url: "https://router.huggingface.co/v1/chat/completions",
-    model: "meta-llama/Llama-3.1-8B-Instruct",
+    models: ["meta-llama/Llama-3.1-8B-Instruct", "Qwen/Qwen2.5-7B-Instruct"],
   },
   xai: {
     url: "https://api.x.ai/v1/chat/completions",
-    model: "grok-2-latest",
+    models: ["grok-2-latest", "grok-beta"],
   },
 };
 
@@ -70,7 +74,7 @@ chatRouter.post("/", async (req, res, next) => {
     return res.status(400).json({ error: "messages[] is required." });
   }
 
-  try {
+  const call = async (model) => {
     const upstream = await fetch(provider.url, {
       method: "POST",
       headers: {
@@ -80,27 +84,43 @@ chatRouter.post("/", async (req, res, next) => {
         "HTTP-Referer": process.env.PUBLIC_URL || "https://early-stage-bia.onrender.com",
         "X-Title": "BIET",
       },
-      body: JSON.stringify({
-        model: process.env.LLM_MODEL || provider.model,
-        messages,
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
+      body: JSON.stringify({ model, messages, temperature: 0.3, max_tokens: 500 }),
     });
+    const text = await upstream.text();
+    return { ok: upstream.ok, status: upstream.status, text };
+  };
 
-    if (!upstream.ok) {
-      const detail = await upstream.text().catch(() => "");
-      return res.status(502).json({
-        error: `Upstream LLM error (${upstream.status}).`,
-        detail: detail.slice(0, 300),
-      });
+  // Try the configured model first (if any), then the provider's known-good
+  // candidates. Model names get retired, so this self-heals across the list.
+  const candidates = [
+    ...(process.env.LLM_MODEL ? [process.env.LLM_MODEL] : []),
+    ...provider.models,
+  ].filter((m, i, a) => a.indexOf(m) === i);
+
+  try {
+    let last = null;
+    for (const model of candidates) {
+      const r = await call(model);
+      if (r.ok) {
+        const reply = JSON.parse(r.text).choices?.[0]?.message?.content?.trim();
+        if (reply) return res.json({ reply, provider: providerName, model });
+        last = { status: 502, text: "Empty response from the LLM." };
+        continue;
+      }
+      last = r;
+      // Only keep trying other models when the failure is a model problem;
+      // auth / rate-limit errors will fail identically for every model.
+      const modelIssue = r.status === 404 || /model|not found|decommission|does not exist/i.test(r.text);
+      if (!modelIssue) break;
     }
 
-    const data = await upstream.json();
-    const reply = data.choices?.[0]?.message?.content?.trim();
-    if (!reply) return res.status(502).json({ error: "Empty response from the LLM." });
-
-    res.json({ reply, provider: providerName });
+    let detail = (last?.text || "").slice(0, 300);
+    try { detail = JSON.parse(last.text).error?.message || detail; } catch {}
+    return res.status(502).json({
+      error: `Upstream LLM error (${last?.status ?? "?"})`,
+      detail,
+      triedModels: candidates,
+    });
   } catch (error) {
     next(error);
   }
