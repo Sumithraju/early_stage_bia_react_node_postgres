@@ -3,7 +3,7 @@ import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { count, money, moneyShort, pct } from "../lib/util.js";
+import { count, money, moneyRate, moneyShort, pct } from "../lib/util.js";
 import { exportReport } from "../lib/pdf.js";
 import { exportResultsExcel } from "../lib/excel.js";
 import Icon from "../components/Icons.jsx";
@@ -117,7 +117,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
         <div className="value">{moneyShort(s.netBudgetImpactTotal, cur)}</div>
         <div className="sub">
           {increases ? "Additional spend" : "Net saving"} versus current care ·{" "}
-          {money(s.year1PMPM, cur)} PMPM in year 1
+          {moneyRate(s.year1PMPM, cur)} PMPM in year 1
         </div>
       </div>
 
@@ -167,9 +167,9 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
               tone={increases ? "neg" : "pos"}
               sub={increases ? "cost increase" : "saving"}
             />
-            <Kpi label="Affordability — PMPM" value={money(s.year1PMPM, cur)} sub="per member / month (Y1)" tip="Per-Member-Per-Month: incremental annual impact ÷ covered population ÷ 12. What the impact costs each covered life monthly." />
-            <Kpi label="Affordability — PPPM" value={money(s.year1PPPM, cur)} sub="per treated patient / month (Y1)" tip="Per-Patient-Per-Month: incremental impact ÷ treated patients ÷ 12. The monthly cost attributable to each patient actually treated." />
-            <Kpi label="Patients treated" value={count(s.peakTreatedPatients)} sub="at peak year" />
+            <Kpi label="Affordability — PMPM" value={moneyRate(s.year1PMPM, cur)} sub="per member / month (Y1)" tip="Per-Member-Per-Month: incremental annual impact ÷ covered population ÷ 12. What the impact costs each covered life monthly." />
+            <Kpi label="Affordability — PPPM" value={moneyRate(s.year1PPPM, cur)} sub="per treated patient / month (Y1)" tip="Per-Patient-Per-Month: incremental impact ÷ treated patients ÷ 12. The monthly cost attributable to each patient actually treated." />
+            <Kpi label="Patients treated" value={count(s.peakTreatedPatients, cur)} sub="at peak year" />
             <Kpi label="Cost per treated patient" value={money(s.costPerTreatedPatient, cur)} sub="per year" />
             <Kpi
               label="Break-even price"
@@ -272,26 +272,26 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
                   {byYear.map((r) => (
                     <tr key={r.year}>
                       <td>{r.calendar}</td>
-                      <td>{count(r.patients)}</td>
+                      <td>{count(r.patients, cur)}</td>
                       <td>{money(r.current, cur)}</td>
                       <td>{money(r.proposed, cur)}</td>
                       <td style={{ color: r.net >= 0 ? "var(--negative)" : "var(--positive)" }}>
                         {money(r.net, cur)}
                       </td>
-                      <td>{money(r.pmpm, cur)}</td>
+                      <td>{moneyRate(r.pmpm, cur)}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
                   <tr>
                     <td>Total</td>
-                    <td>{count(s.treatedPatientYears)}</td>
+                    <td>{count(s.treatedPatientYears, cur)}</td>
                     <td>{money(s.currentCostTotal, cur)}</td>
                     <td>{money(s.newCostTotal, cur)}</td>
                     <td style={{ color: increases ? "var(--negative)" : "var(--positive)" }}>
                       {money(s.netBudgetImpactTotal, cur)}
                     </td>
-                    <td>{money(s.averagePMPM, cur)}</td>
+                    <td>{moneyRate(s.averagePMPM, cur)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -308,7 +308,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
                 key={sc.scenarioId}
                 label={sc.label}
                 value={moneyShort(sc.netBudgetImpactTotal, cur)}
-                sub={`${pct(sc.uptakeScale - 1, 0)} vs base uptake · ${count(sc.treatedPatientYears)} patient-years`}
+                sub={`${pct(sc.uptakeScale - 1, 0)} vs base uptake · ${count(sc.treatedPatientYears, cur)} patient-years`}
               />
             ))}
           </div>
@@ -354,11 +354,11 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
                     <tr key={sc.scenarioId}>
                       <td>{sc.label}</td>
                       <td>{`${(sc.uptakeScale * 100).toFixed(0)}% of base`}</td>
-                      <td>{count(sc.treatedPatientYears)}</td>
+                      <td>{count(sc.treatedPatientYears, cur)}</td>
                       <td style={{ color: sc.netBudgetImpactTotal >= 0 ? "var(--negative)" : "var(--positive)" }}>
                         {money(sc.netBudgetImpactTotal, cur)}
                       </td>
-                      <td>{money(sc.year1PMPM, cur)}</td>
+                      <td>{moneyRate(sc.year1PMPM, cur)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -371,10 +371,10 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
       {tab === "clinical" && (
         <>
           <div className="kpis" style={{ marginBottom: 16 }}>
-            <Kpi label="Weight-loss responders" value={count(s.weightLossResponders)} sub="patient-years at target loss" />
-            <Kpi label="Events avoided" value={count(s.eventsAvoidedTotal)} sub="across all outcomes" />
+            <Kpi label="Weight-loss responders" value={count(s.weightLossResponders, cur)} sub="patient-years at target loss" />
+            <Kpi label="Events avoided" value={count(s.eventsAvoidedTotal, cur)} sub="across all outcomes" />
             <Kpi label="Hospital costs avoided" value={moneyShort(s.hospitalCostAvoidedTotal, cur)} tone="pos" />
-            <Kpi label="Eligible patients" value={count(s.year1EligiblePatients)} sub="year 1" />
+            <Kpi label="Eligible patients" value={count(s.year1EligiblePatients, cur)} sub="year 1" />
           </div>
 
           <div className="card">
@@ -391,7 +391,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
                   {result.eventsAvoided.map((e) => (
                     <tr key={e.outcomeCode}>
                       <td>{e.outcomeName}</td>
-                      <td>{count(e.eventsAvoided)}</td>
+                      <td>{count(e.eventsAvoided, cur)}</td>
                       <td style={{ color: "var(--positive)" }}>{money(e.costAvoided, cur)}</td>
                     </tr>
                   ))}
@@ -399,7 +399,7 @@ export default function Results({ model, result, runs = [], onSaveRun, onDeleteR
                 <tfoot>
                   <tr>
                     <td>Total</td>
-                    <td>{count(s.eventsAvoidedTotal)}</td>
+                    <td>{count(s.eventsAvoidedTotal, cur)}</td>
                     <td style={{ color: "var(--positive)" }}>{money(s.hospitalCostAvoidedTotal, cur)}</td>
                   </tr>
                 </tfoot>
@@ -479,12 +479,12 @@ function RunsTab({ runs, model, result, onDelete, onClear }) {
     ["Intervention", (c) => c.meta.interventionName || "—", true],
     ["Annual price", (c) => money(c.meta.interventionPrice || 0, cur), false],
     ["Net budget impact", (c) => money(c.m.netBudgetImpactTotal, cur), false, "impact"],
-    ["Year 1 PMPM", (c) => money(c.m.year1PMPM, cur), false],
-    ["Patients treated (peak)", (c) => count(c.m.peakTreatedPatients), false],
-    ["Patient-years", (c) => count(c.m.treatedPatientYears), false],
+    ["Year 1 PMPM", (c) => moneyRate(c.m.year1PMPM, cur), false],
+    ["Patients treated (peak)", (c) => count(c.m.peakTreatedPatients, cur), false],
+    ["Patient-years", (c) => count(c.m.treatedPatientYears, cur), false],
     ["Cost / treated patient", (c) => money(c.m.costPerTreatedPatient, cur), false],
     ["Break-even price", (c) => (c.m.breakEvenAnnualPrice == null ? "n/a" : money(c.m.breakEvenAnnualPrice, cur)), false],
-    ["Events avoided", (c) => count(c.m.eventsAvoidedTotal), false],
+    ["Events avoided", (c) => count(c.m.eventsAvoidedTotal, cur), false],
     ["Hospital cost avoided", (c) => money(c.m.hospitalCostAvoidedTotal, cur), false],
   ];
 
@@ -611,7 +611,7 @@ function DecisionSummary({ model, result, mostSensitive, onExport, exporting, on
   const rec =
     `${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
     `${model.perspective.toLowerCase()} budget by ${moneyShort(Math.abs(s.netBudgetImpactTotal), cur)} ` +
-    `over ${model.timeHorizonYears} years (${money(s.averagePMPM, cur)} PMPM). ` +
+    `over ${model.timeHorizonYears} years (${moneyRate(s.averagePMPM, cur)} PMPM). ` +
     `The largest driver is ${driver.label.toLowerCase()}` +
     `${offset && offset.diff < 0 ? `, partly offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
     `The result is most sensitive to ${mostSensitive ? mostSensitive.label.toLowerCase() : "the price and uptake assumptions"} — ` +
@@ -619,8 +619,8 @@ function DecisionSummary({ model, result, mostSensitive, onExport, exporting, on
 
   const stats = [
     [`${model.timeHorizonYears}-year net budget impact`, moneyShort(s.netBudgetImpactTotal, cur), increases ? "neg" : "pos"],
-    ["Average PMPM", money(s.averagePMPM, cur)],
-    ["Patients on new therapy", count(s.peakTreatedPatients)],
+    ["Average PMPM", moneyRate(s.averagePMPM, cur)],
+    ["Patients on new therapy", count(s.peakTreatedPatients, cur)],
     ["Largest cost driver", driver.label, null, `+${moneyShort(driver.diff, cur)}`],
     ["Largest offset", offset.label, null, moneyShort(offset.diff, cur)],
     ["Most sensitive assumption", mostSensitive ? mostSensitive.label : "—"],
@@ -708,8 +708,8 @@ function CompareTab({ model, result }) {
             <tbody>
               <tr>
                 <td>Patients treated (patient-years)</td>
-                <td>{count(cmp.patientYears)}</td>
-                <td>{count(cmp.patientYears)}</td>
+                <td>{count(cmp.patientYears, cur)}</td>
+                <td>{count(cmp.patientYears, cur)}</td>
                 <td className="muted">—</td>
               </tr>
               {cmp.categories.map((c) => (
@@ -834,11 +834,11 @@ function MethodologyTab({ model, result }) {
         <div className="method-chain">
           <span>Covered population</span><i>× prevalence × diagnosed × clinical × payer × access × willingness</i>
           <span className="arrow">↓</span>
-          <span><strong>Eligible patients</strong> = {count(s.year1EligiblePatients)} (year 1)</span>
+          <span><strong>Eligible patients</strong> = {count(s.year1EligiblePatients, cur)} (year 1)</span>
           <span className="arrow">↓</span>
           <span>× current-care mix and new-drug uptake each year</span>
           <span className="arrow">↓</span>
-          <span><strong>Patients treated</strong> = {count(s.peakTreatedPatients)} at peak</span>
+          <span><strong>Patients treated</strong> = {count(s.peakTreatedPatients, cur)} at peak</span>
           <span className="arrow">↓</span>
           <span>each patient costs: drug + administration + monitoring + medical events − avoided events</span>
           <span className="arrow">↓</span>
