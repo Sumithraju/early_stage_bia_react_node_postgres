@@ -21,6 +21,23 @@ export function money(value, currency = "INR") {
 }
 
 /**
+ * Per-member rates (PMPM, PPPM) are small by construction -- a few cents to a
+ * few euros -- so rounding them to whole units renders the headline
+ * affordability metric as "0". Show cents below 100, whole units above.
+ */
+export function moneyRate(value, currency = "INR") {
+  const n = Number(value) || 0;
+  const locale = currency === "INR" ? "en-IN" : "en-US";
+  if (Math.abs(n) < 100) {
+    return symbolFor(currency) + n.toLocaleString(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+  return money(n, currency);
+}
+
+/**
  * Short form for headline figures. Indian currency uses crore/lakh because a
  * payer audience reads "₹374 Cr" far faster than eleven digits.
  */
@@ -42,8 +59,14 @@ export function moneyShort(value, currency = "INR") {
   return `${sign}${sym}${Math.round(abs)}`;
 }
 
-export function count(value) {
-  return Math.round(Number(value) || 0).toLocaleString("en-IN");
+/**
+ * Patient counts follow the currency's convention: Indian grouping (1,72,938)
+ * only for INR models, international grouping (172,938) everywhere else. The
+ * locale was hardcoded to en-IN, which put lakh separators in German figures.
+ */
+export function count(value, currency = "USD") {
+  const locale = currency === "INR" ? "en-IN" : "en-US";
+  return Math.round(Number(value) || 0).toLocaleString(locale);
 }
 
 export function pct(value, digits = 1) {
