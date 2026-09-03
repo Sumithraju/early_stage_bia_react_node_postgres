@@ -3,6 +3,10 @@
 
 A full-stack proof-of-concept for a disease-agnostic early-stage Budget Impact Analysis (BIA) platform.
 
+**New here? Start with the [demo guide](docs/demo/README.md)** — a tab-by-tab
+walkthrough of the built-in scenario with screenshots, the inputs to enter, and
+the numbers you should see.
+
 ### Main features
 
 - React dashboard
@@ -150,6 +154,15 @@ start: npm start         # runs migrations, then serves API + client
 | `ENABLE_PUBLIC_SYNC` | Blueprint | `false` — a free instance sleeps, so the nightly cron would not fire reliably |
 | `CLIENT_ORIGIN` | unset | Only needed if the client is hosted separately; accepts a comma-separated list |
 | `DATABASE_SSL` | unset | TLS is chosen from the database host; set `true`/`false` to force it |
+| `LLM_API_KEY` | You, optional | Enables the AI assistant **and** EviTrack insight summaries |
+| `LLM_PROVIDER` | You, optional | `groq` (default), `openrouter`, `huggingface` or `xai` |
+| `GEMINI_API_KEY` | You, optional | Only if you want Gemini in EviTrack's model picker |
+| `GROQ_API_KEY` | You, optional | Not needed — `LLM_API_KEY` covers Groq — but wins if set |
+
+One key is enough: `LLM_API_KEY` with `LLM_PROVIDER=groq` powers both the
+assistant and EviTrack. A provider-specific key takes precedence where present.
+With no key at all, the assistant falls back to built-in local answers and
+EviTrack search still works without insight summaries.
 
 ### Things worth knowing
 
