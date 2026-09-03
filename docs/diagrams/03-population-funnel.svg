@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 372" width="980" height="372" role="img" aria-label="Population funnel">
+<title>Population funnel</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8A8A9C"/></marker></defs>
+<rect width="980" height="372" fill="#FFFFFF"/>
+<text x="40" y="34" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">STEP</text>
+<text x="300" y="34" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">KEEPS</text>
+<text x="940" y="34" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">PATIENTS</text>
+<text x="40" y="76" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Covered population</text>
+<rect x="400" y="62" width="330.0" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="75" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">8,000,000</text>
+<line x1="40" y1="90" x2="940" y2="90" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="116" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Living with type 2 diabetes</text>
+<text x="300" y="116" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 9%</text>
+<rect x="400" y="102" width="99.0" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="115" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">720,000</text>
+<line x1="40" y1="130" x2="940" y2="130" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="156" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Diagnosed</text>
+<text x="300" y="156" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 75%</text>
+<rect x="400" y="142" width="85.7" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="155" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">540,000</text>
+<line x1="40" y1="170" x2="940" y2="170" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="196" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Clinically eligible</text>
+<text x="300" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 55%</text>
+<rect x="400" y="182" width="63.6" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="195" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">297,000</text>
+<line x1="40" y1="210" x2="940" y2="210" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="236" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Payer eligible</text>
+<text x="300" y="236" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 85%</text>
+<rect x="400" y="222" width="58.6" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="235" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">252,450</text>
+<line x1="40" y1="250" x2="940" y2="250" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="276" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1A1A22">Able to access</text>
+<text x="300" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 90%</text>
+<rect x="400" y="262" width="55.6" height="16" rx="3" fill="#B9C2FA"/>
+<text x="940" y="275" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#1A1A22">227,205</text>
+<line x1="40" y1="290" x2="940" y2="290" stroke="#E3E3EA" stroke-width="1"/>
+<text x="40" y="316" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="600" fill="#1A1A22">Willing to treat</text>
+<text x="300" y="316" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6B6B7B">× 80%</text>
+<rect x="400" y="302" width="49.7" height="16" rx="3" fill="#A7E8DC"/>
+<text x="940" y="315" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="600" fill="#0B6E64">181,764</text>
+<text x="40" y="352" text-anchor="start" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#6B6B7B">Year 1. Bars use a square-root scale so the lower steps stay visible; the figures beside them are exact. Total reduction: 44×.</text>
+</svg>
