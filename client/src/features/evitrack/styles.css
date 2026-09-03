@@ -1,0 +1,48 @@
+.evitrack {
+  padding: 28px;
+}
+
+.evitrack-header {
+  margin-bottom: 24px;
+}
+
+.evitrack-header h2 {
+  margin: 0;
+}
+
+.evitrack-header p {
+  margin-top: 6px;
+}
+
+.evitrack-search {
+  display: grid;
+  grid-template-columns: auto 180px minmax(320px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.evitrack-search label {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.evitrack-search select {
+  min-width: 0;
+  width: 180px;
+  padding: 10px 12px;
+}
+
+.evitrack-search input {
+  min-width: 0;
+  width: 100%;
+  padding: 12px;
+}
+
+.evitrack-section {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}

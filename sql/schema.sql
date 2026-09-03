@@ -231,3 +231,21 @@ CREATE TABLE IF NOT EXISTS clinical_trial_snapshot (
 
 CREATE INDEX IF NOT EXISTS idx_trial_nct_retrieved
 ON clinical_trial_snapshot(nct_id, retrieved_at DESC);
+
+CREATE TABLE IF NOT EXISTS evidence_records (
+    evidence_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source VARCHAR(128) NOT NULL,
+    source_id VARCHAR(255),
+    source_url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    authors TEXT,
+    publication_date INTEGER,
+    doi VARCHAR(512),
+    evidence_type VARCHAR(128) NOT NULL,
+    abstract TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_evidence_source_source_id
+ON evidence_records(source, source_id)
+WHERE source_id IS NOT NULL;
+
