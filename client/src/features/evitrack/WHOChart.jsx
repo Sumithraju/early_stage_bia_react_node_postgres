@@ -134,7 +134,7 @@ export function WHOChart({ results }) {
         style={{
           marginBottom: "16px",
           padding: "14px 16px",
-          border: "1px solid var(--line)",
+          border: "1px solid var(--border)",
           borderRadius: "8px",
           fontSize: "12px",
           lineHeight: 1.7,
@@ -169,7 +169,7 @@ export function WHOChart({ results }) {
             }}
           >
             <CartesianGrid
-              stroke="var(--line)"
+              stroke="var(--border)"
               vertical={false}
             />
 
@@ -187,7 +187,7 @@ export function WHOChart({ results }) {
               unit="%"
               tick={{
                 fontSize: 11,
-                fill: "var(--ink-3)",
+                fill: "var(--ink-muted)",
               }}
               axisLine={false}
               tickLine={false}

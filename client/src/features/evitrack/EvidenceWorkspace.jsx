@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { modelLabel } from "./SearchBox.jsx";
 
 function buildEvidenceContext(
   evidence,
@@ -221,38 +222,44 @@ ${evidenceContext}
           >
             <button
               type="button"
+              className="btn primary sm"
               onClick={handleSummarize}
               disabled={summaryLoading}
             >
               {summaryLoading
                 ? "Summarizing..."
-                :  `Summarize with ${selectedModel}`}
+                :  "Summarise selected"}
             </button>
 
             <button
               type="button"
+              className="btn sm"
               onClick={handleClear}
             >
               Clear all
             </button>
           </div>
         )}
+      </div>
 
           <div
             style={{
               marginTop: "24px",
               paddingTop: "20px",
               borderTop:
-                "1px solid var(--line)",
+                "1px solid var(--border)",
             }}
           >
             <div>
-              <h4>{selectedModel} Evidence Assistant</h4>
+              <h4>
+                Evidence assistant
+                <span className="evitrack-model-tag">{modelLabel(selectedModel)}</span>
+              </h4>
 
               <p>
                 Ask questions about the selected
-                evidence. {selectedModel} answers using only
-                the evidence records above.
+                evidence — answered using only the evidence
+                records you have added above.
               </p>
             </div>
 
@@ -272,7 +279,7 @@ ${evidenceContext}
                       style={{
                         padding: "12px",
                         border:
-                          "1px solid var(--line)",
+                          "1px solid var(--border)",
                         borderRadius: "8px",
                       }}
                     >
@@ -314,7 +321,7 @@ ${evidenceContext}
                   marginBottom: "12px",
                   padding: "10px",
                   border:
-                    "1px solid var(--line)",
+                    "1px solid var(--border)",
                 }}
               >
                 {chatError}
@@ -322,14 +329,7 @@ ${evidenceContext}
             )}
 
             {selectedEvidence.length === 0 && (
-              <p
-                style={{
-                  padding: "10px",
-                  border: "1px solid var(--line)",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                }}
-              >
+              <p className="evitrack-hint">
                 Add at least one evidence record above
                 before asking the AI assistant a question.
               </p>
@@ -338,6 +338,7 @@ ${evidenceContext}
             <div
               style={{
                 display: "flex",
+                alignItems: "flex-end",
                 gap: "10px",
                 alignItems: "flex-end",
               }}
@@ -356,17 +357,14 @@ ${evidenceContext}
                     void handleAskAI();
                   }
                 }}
-                placeholder={`Ask ${selectedModel} about the selected evidence...`}
+                placeholder="Ask a question about the selected evidence…"
                 rows={3}
-                style={{
-                  flex: 1,
-                  resize: "vertical",
-                  padding: "10px",
-                }}
+                className="evitrack-ask-input"
               />
 
               <button
                 type="button"
+                className="btn primary"
                 onClick={() =>
                   void handleAskAI()
                 }
@@ -378,7 +376,7 @@ ${evidenceContext}
               >
                 {chatLoading
                   ? "Thinking..."
-                  :  `Ask ${selectedModel}`}
+                  :  "Ask"}
               </button>
             </div>
 
@@ -386,14 +384,13 @@ ${evidenceContext}
               style={{
                 marginTop: "8px",
                 fontSize: "11px",
-                color: "var(--ink-3)",
+                color: "var(--ink-muted)",
               }}
             >
               The AI assistant does not modify BIA inputs or
               deterministic calculations.
             </p>
           </div>
-      </div>
 
       {selectedEvidence.length === 0 ? (
         <p>
@@ -424,7 +421,7 @@ ${evidenceContext}
               style={{
                 padding: "12px 0",
                 borderTop:
-                  "1px solid var(--line)",
+                  "1px solid var(--border)",
               }}
             >
               <div>
@@ -469,7 +466,7 @@ ${evidenceContext}
                 marginTop: "16px",
                 padding: "12px",
                 border:
-                  "1px solid var(--line)",
+                  "1px solid var(--border)",
               }}
             >
               {summaryError}
@@ -482,10 +479,13 @@ ${evidenceContext}
                 marginTop: "20px",
                 paddingTop: "16px",
                 borderTop:
-                  "1px solid var(--line)",
+                  "1px solid var(--border)",
               }}
             >
-              <h4>{selectedModel} evidence summary</h4>
+              <h4>
+                Evidence summary
+                <span className="evitrack-model-tag">{modelLabel(selectedModel)}</span>
+              </h4>
 
               <div className="evitrack-summary-content">
                 <ReactMarkdown>
