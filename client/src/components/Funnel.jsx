@@ -5,11 +5,17 @@ import { count, pct } from "../lib/util.js";
  * tab rather than in the results, so the user watches the eligible number move
  * as they type the rates that produce it.
  */
+/** The funnel is disease-agnostic; the prevalence row names the actual disease. */
+function diseaseLabel(model) {
+  const name = String(model.diseaseName || "the condition").split(/[/(]/)[0].trim();
+  return name.toLowerCase();
+}
+
 export function buildFunnel(model) {
   const pop = Number(model.coveredPopulation) || 0;
   const steps = [
     { label: "Covered population", rate: null },
-    { label: "Living with obesity", rate: model.prevalence },
+    { label: `Living with ${diseaseLabel(model)}`, rate: model.prevalence },
     { label: "Diagnosed", rate: model.diagnosisRate },
     { label: "Clinically eligible", rate: model.clinicalEligibility },
     { label: "Payer eligible", rate: model.payerEligibility },

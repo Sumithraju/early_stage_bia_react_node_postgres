@@ -8,8 +8,11 @@ function clamp01(value) {
 }
 
 /**
- * Annual cost of keeping one patient on a treatment, discounted for the share
- * of patients who actually take it (adherence) and stay on it (persistence).
+ * Annual cost of keeping one patient on a treatment, weighted by the share of
+ * patients who actually take it (adherence) and stay on it (persistence).
+ * "Weighted", not "discounted": no financial discount rate is applied anywhere
+ * in this engine, which is deliberate — ISPOR good practice for budget impact
+ * analysis reports undiscounted costs, unlike cost-effectiveness analysis.
  * Administration, monitoring and device costs only accrue while a patient
  * persists, but are not affected by day-to-day adherence.
  */
