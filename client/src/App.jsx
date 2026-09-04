@@ -4,6 +4,7 @@ import { getDefaultModel } from "./lib/defaultModel.js";
 import { defaultModelFor, demoScenario } from "./lib/diseases.js";
 import { clearRuns, deleteRun, loadRuns, saveRun } from "./lib/runs.js";
 import Assistant from "./components/Assistant.jsx";
+import Runbook from "./components/Runbook.jsx";
 import Icon from "./components/Icons.jsx";
 import { clearSession, loadSession, saveSession } from "./lib/util.js";
 import { downloadTemplate, importWorkbook } from "./lib/excel.js";
@@ -29,6 +30,7 @@ export default function App() {
   const [showResults, setShowResults] = useState(false);
   const [view, setView] = useState("bia");
   const [notice, setNotice] = useState(null);
+  const [runbookOpen, setRunbookOpen] = useState(false);
   const [runs, setRuns] = useState(loadRuns);
   const fileRef = useRef(null);
 
@@ -132,8 +134,12 @@ export default function App() {
           ref={fileRef} type="file" accept=".xlsx,.xls"
           style={{ display: "none" }} onChange={onImport}
         />
-        <button className="btn primary sm" onClick={loadDemo} title="Load a complete demonstration scenario end-to-end">
-          ▶ Load demo
+        <button
+          className="btn primary sm"
+          onClick={() => setRunbookOpen(true)}
+          title="Open the demo runbook — the scenario, what to enter, and the figures to expect"
+        >
+          <Icon name="book" size={14} /> Demo runbook
         </button>
         <button className="btn sm" onClick={() => fileRef.current?.click()} title="Load inputs from an Excel workbook">
           Import Excel
@@ -243,6 +249,12 @@ export default function App() {
       {view === "bia" && (
         <Assistant model={model} result={result} />
       )}
+
+      <Runbook
+        open={runbookOpen}
+        onClose={() => setRunbookOpen(false)}
+        onLoadDemo={loadDemo}
+      />
     </div>
   );
 }
