@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { calculateBudgetImpact } from "./lib/biaEngine.js";
+import { validateModel } from "../../shared/modelValidation.js";
 import { getDefaultModel } from "./lib/defaultModel.js";
 import { defaultModelFor, demoScenario } from "./lib/diseases.js";
 import { clearRuns, deleteRun, loadRuns, saveRun } from "./lib/runs.js";
@@ -75,11 +76,16 @@ export default function App() {
 
   // Recomputed on every keystroke: the engine is pure and runs in the browser,
   // so there is no server round-trip to debounce.
-  const { result, error } = useMemo(() => {
+  const { result, error, errors, warnings } = useMemo(() => {
+    const v = validateModel(model);
+    if (!v.ok) {
+      return { result: null, error: v.errors[0].message, errors: v.errors, warnings: v.warnings };
+    }
     try {
-      return { result: calculateBudgetImpact(model), error: null };
+      return { result: calculateBudgetImpact(model), error: null, errors: [], warnings: v.warnings };
     } catch (e) {
-      return { result: null, error: e.message };
+      // Belt and braces: the engine still guards itself.
+      return { result: null, error: e.message, errors: [{ field: "model", message: e.message }], warnings: v.warnings };
     }
   }, [model]);
 
@@ -189,7 +195,7 @@ export default function App() {
           </div>
         )}
 
-        {error && !showResults && <div className="alert">{error}</div>}
+        <Issues errors={errors} warnings={warnings} />
 
         {showResults ? (
           result ? (
@@ -256,5 +262,45 @@ export default function App() {
         onLoadDemo={loadDemo}
       />
     </div>
+  );
+}
+
+/**
+ * Validation feedback. Errors block the calculation; warnings mean the
+ * arithmetic is sound but the answer probably is not what was intended --
+ * a zeroed eligibility rate returns "no budget impact", which reads exactly
+ * like a real finding unless something says otherwise.
+ */
+function Issues({ errors = [], warnings = [] }) {
+  if (!errors.length && !warnings.length) return null;
+  return (
+    <>
+      {errors.length > 0 && (
+        <div className="alert" role="alert">
+          <div>
+            <strong>
+              {errors.length === 1
+                ? "Fix this before the results mean anything"
+                : `${errors.length} problems block the calculation`}
+            </strong>
+            <ul className="issue-list">
+              {errors.map((e, i) => <li key={i}>{e.message}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+      {warnings.length > 0 && (
+        <div className="alert warn">
+          <div>
+            <strong>
+              {warnings.length === 1 ? "Worth checking" : `${warnings.length} things worth checking`}
+            </strong>
+            <ul className="issue-list">
+              {warnings.map((w, i) => <li key={i}>{w.message}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

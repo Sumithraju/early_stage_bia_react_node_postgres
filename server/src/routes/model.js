@@ -1,5 +1,6 @@
 import express from "express";
 import { query } from "../db/query.js";
+import { validateModel } from "../../../shared/modelValidation.js";
 
 /**
  * Run persistence only.
@@ -16,6 +17,17 @@ export const modelRouter = express.Router();
 modelRouter.post("/runs", async (req, res, next) => {
   try {
     const { input, result } = req.body;
+
+    // Same rules the browser applies, from the same file. A run persisted from
+    // an invalid model would sit in the history looking like a real result.
+    const v = validateModel(input);
+    if (!v.ok) {
+      return res.status(400).json({
+        error: "The model is not valid.",
+        errors: v.errors,
+        warnings: v.warnings,
+      });
+    }
 
     const saved = await query(
       `INSERT INTO budget_impact_run
