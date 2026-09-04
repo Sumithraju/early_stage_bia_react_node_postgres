@@ -7,6 +7,7 @@ import {
   parseBiaWorkbook,
   persistImportedModel,
 } from "../services/excelImporter.js";
+import { validateModel } from "../../../shared/modelValidation.js";
 
 // Render's disk is ephemeral and the working directory is not guaranteed to be
 // writable, so uploads land in the OS temp dir unless UPLOAD_DIR overrides it.
@@ -29,12 +30,24 @@ importRouter.post("/excel", upload.single("file"), async (req, res, next) => {
 
   try {
     const model = parseBiaWorkbook(req.file.path);
+
+    // An uploaded workbook is the least trustworthy input the app takes, so it
+    // is checked against the same rules as anything typed into the UI.
+    const v = validateModel(model);
+    if (!v.ok) {
+      return res.status(400).json({
+        error: "The uploaded workbook does not describe a valid model.",
+        errors: v.errors,
+        warnings: v.warnings,
+      });
+    }
+
     const importJob = await persistImportedModel(
       model,
       req.file.originalname
     );
 
-    res.json({ importJob, model });
+    res.json({ importJob, model, warnings: v.warnings });
   } catch (error) {
     next(error);
   } finally {

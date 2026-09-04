@@ -652,3 +652,22 @@ th.run-current { color: var(--brand); }
   margin: 3px 0 0; padding-left: 13px; line-height: 1.55; color: var(--ink-2);
   border-left: 2px solid var(--border);
 }
+
+/* ---------- validation feedback ---------- */
+
+.alert.warn {
+  background: #FFFBEB; color: #92400E; border-color: #FDE68A;
+}
+:root:not([data-theme="light"]) .alert.warn { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .alert.warn {
+    background: #2A1F05; color: #FCD34D; border-color: #6B4E10;
+  }
+}
+:root[data-theme="dark"] .alert.warn {
+  background: #2A1F05; color: #FCD34D; border-color: #6B4E10;
+}
+.alert strong { display: block; margin-bottom: 4px; font-size: 13px; }
+.issue-list { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.55; }
+.issue-list li { margin-bottom: 3px; }
+.issue-list li:last-child { margin-bottom: 0; }
