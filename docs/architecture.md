@@ -48,8 +48,17 @@ reasons:
 The server still exists, and it matters — but for things the browser genuinely
 cannot do: calling third-party evidence APIs that block cross-origin requests,
 holding an LLM key where the page source cannot leak it, and optional
-persistence. The server-side engine at `server/src/services/biaEngine.js` is
-retained so the REST API stays usable for scripted or programmatic runs.
+persistence.
+
+A second copy of the engine lived at `server/src/services/biaEngine.js` to keep
+the REST API usable for scripted runs. It has been removed. Nothing called it,
+and the two copies had drifted far enough to disagree by 16% on identical
+inputs -- EUR 296.6M in the browser against EUR 249.9M through the API, with
+five summary metrics missing on the server side. For a tool whose claim is
+auditable numbers, a second endpoint quietly returning a different answer is
+worse than no endpoint. One engine now exists, and `POST /api/model/calculate`
+and `GET /api/model/default` are gone with it; `/api/model/runs` still persists
+results when a database is configured.
 
 ---
 
@@ -177,7 +186,7 @@ input produces zero rather than `NaN` propagating through the whole result.
 | `routes/chat.js` | LLM proxy with provider model discovery. |
 | `routes/evitrack.js` | Evidence search, listing and storage. |
 | `routes/llm.js` | Insight generation and evidence summarisation. |
-| `routes/model.js` | Server-side calculation and run persistence. |
+| `routes/model.js` | Run persistence (`/api/model/runs`). |
 | `routes/import.js` | Server-side Excel ingestion. |
 | `services/evitrack/sources/` | Five source adapters behind one registry. |
 | `services/evitrack/llm/` | Groq and Gemini clients plus shared key resolution. |

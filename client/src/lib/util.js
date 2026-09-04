@@ -4,7 +4,7 @@
 const CRORE = 1e7;
 const LAKH = 1e5;
 
-export const SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
+const SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
 
 export function symbolFor(currency) {
   return SYMBOLS[currency] || "";

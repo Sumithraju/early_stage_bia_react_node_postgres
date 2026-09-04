@@ -1,22 +1,17 @@
 import express from "express";
-import { getDefaultModel } from "../services/defaultModel.js";
-import { calculateBudgetImpact } from "../services/biaEngine.js";
 import { query } from "../db/query.js";
 
+/**
+ * Run persistence only.
+ *
+ * This router used to expose /default and /calculate, backed by a second copy
+ * of the economic model under services/. Nothing called them -- the browser
+ * computes everything locally -- and the two copies had drifted far enough to
+ * disagree by 16% on the same inputs, which is worse than having no API at all
+ * for a tool whose whole claim is auditable numbers. One engine now exists,
+ * in client/src/lib/biaEngine.js.
+ */
 export const modelRouter = express.Router();
-
-modelRouter.get("/default", (req, res) => {
-  res.json(getDefaultModel());
-});
-
-modelRouter.post("/calculate", (req, res, next) => {
-  try {
-    const result = calculateBudgetImpact(req.body);
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
 
 modelRouter.post("/runs", async (req, res, next) => {
   try {

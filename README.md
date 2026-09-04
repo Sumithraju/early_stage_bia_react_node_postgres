@@ -24,7 +24,7 @@ the numbers you should see. For how the system is put together, see the
 - Base / Low / High scenarios
 - Parameter audit trail
 - Historical model runs
-- 48-hour public-data sync scaffold
+- Public-data sync scaffold (off by default on free-tier hosting)
 - World Bank population adapter
 - ClinicalTrials.gov adapter
 - openFDA drug-label adapter
@@ -37,9 +37,10 @@ the numbers you should see. For how the system is put together, see the
 ```text
                 PUBLIC DATA SOURCES
           World Bank | ClinicalTrials.gov
-               openFDA | WHO | NPPA
+                    openFDA
                          |
-                    48-hour sync
+              sync, min 48h between runs
+              (disabled by default)
                          |
                          v
                   PostgreSQL
@@ -332,7 +333,12 @@ cd server
 npm run sync:public
 ```
 
-Scheduled automatically every 48 hours while the server is running.
+Scheduling: a daily cron at 02:00 checks each source and refreshes it only if
+at least 48 hours have passed since its last success, so the effective cadence
+is 48-72 hours. It requires a database, and it is **off by default** --
+`ENABLE_PUBLIC_SYNC` is `false` in `render.yaml`, because a free Render instance
+sleeps when idle and the schedule would not fire reliably. Set it to `true` on
+an always-on host. The manual command above works either way.
 
 Implemented adapters:
 

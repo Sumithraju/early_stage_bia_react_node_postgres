@@ -62,11 +62,6 @@ export function deleteRun(id) {
   return next;
 }
 
-export function renameRun(id, label) {
-  const next = loadRuns().map((r) => (r.id === id ? { ...r, label } : r));
-  persist(next);
-  return next;
-}
 
 export function clearRuns() {
   persist([]);
