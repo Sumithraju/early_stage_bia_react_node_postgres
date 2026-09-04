@@ -35,6 +35,18 @@ const PATHS = {
   runs: <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="8" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="14" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="10" cy="18" r="1.4" fill="currentColor" stroke="none" /></>,
   pdf: <><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v4h4" /><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 16v2" opacity=".9" /></>,
   // Robot with headphones for the assistant button (matches the requested look)
+  book: (
+    <>
+      <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2v14a1.75 1.75 0 0 0-1.75-1.75H5.5A1.5 1.5 0 0 1 4 15.75z" />
+      <path d="M20 4.5A1.5 1.5 0 0 0 18.5 3H14a2 2 0 0 0-2 2v14a1.75 1.75 0 0 1 1.75-1.75h4.75A1.5 1.5 0 0 0 20 15.75z" />
+    </>
+  ),
+  close: (
+    <>
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </>
+  ),
   robot: (
     <>
       <circle cx="12" cy="3.4" r="1.15" fill="currentColor" stroke="none" />
