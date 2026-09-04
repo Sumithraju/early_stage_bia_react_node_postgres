@@ -105,6 +105,48 @@ export default function Runbook({ open, onClose, onLoadDemo }) {
           <Expect><b>2,480</b> events avoided, worth <b>€17.96M</b> in medical cost.</Expect>
         </Step>
 
+        <h3 className="runbook-h3">Results — what each tab tells you</h3>
+        <div className="runbook-rows">
+          <Row k="Budget impact" v="The headline answer" />
+          <Row k="Current vs new" v="Where the money moves" />
+          <Row k="Scenarios" v="How wrong could uptake be" />
+          <Row k="Sensitivity" v="What would change the answer" />
+          <Row k="Clinical outcomes" v="What the spend buys" />
+          <Row k="Methodology" v="How the number was reached" />
+          <Row k="Runs" v="This model versus the last one" />
+        </div>
+        <dl className="runbook-defs">
+          <dt>Budget impact</dt>
+          <dd>Net impact over the horizon, the affordability metrics (PMPM, PPPM),
+            patients treated, cost per patient and break-even price, plus the
+            year-by-year table. Start and finish here.</dd>
+          <dt>Current vs new</dt>
+          <dd>Both scenarios split into cost components — drug, administration,
+            monitoring, device, medical events — so you can see which component
+            drives the difference rather than only that a difference exists.
+            Component totals reconcile exactly to the scenario totals.</dd>
+          <dt>Scenarios</dt>
+          <dd>The whole model re-run at half and one-and-a-half times the base
+            uptake curve. Uptake is usually the least certain input, so this is
+            the range a payer should plan against, not a single number.</dd>
+          <dt>Sensitivity</dt>
+          <dd>A one-way tornado: each of ten parameters moved ±20% on its own,
+            sorted by how far the answer swings. The top bar is where more
+            evidence would be worth buying.</dd>
+          <dt>Clinical outcomes</dt>
+          <dd>Events avoided per outcome and the medical cost that removes — the
+            offset against the drug bill. Benefit applies only to responders and
+            decays with the regain rate, so it is never assumed permanent.</dd>
+          <dt>Methodology</dt>
+          <dd>The full calculation chain, per-patient costs and every assumption
+            in force. This is the audit tab: a reviewer can trace a number from
+            input to headline without reading the code.</dd>
+          <dt>Runs</dt>
+          <dd>Save a run, change one input, save again. Runs line up side by side
+            so you can show the effect of a single change. They live in the
+            session and clear when the tab closes.</dd>
+        </dl>
+
         <h3 className="runbook-h3">Results — what you should see</h3>
         <div className="runbook-table">
           <table>
@@ -134,6 +176,47 @@ export default function Runbook({ open, onClose, onLoadDemo }) {
           <li><b>Results.</b> “€296.6 million over five years — which is thirteen cents per member per month, the number you actually negotiate on.”</li>
           <li><b>Sensitivity.</b> “And here is what would change that answer.”</li>
         </ol>
+
+        <h3 className="runbook-h3">EviTrack — the evidence module</h3>
+        <p className="runbook-why">
+          Reached from <b>EviTrack</b> in the top bar. A budget impact model is only as
+          defensible as its inputs, and the usual challenge is “where did that number come
+          from?” EviTrack is the answer to that question: it searches published evidence
+          and keeps what you select alongside the model.
+        </p>
+        <div className="runbook-rows">
+          <Row k="PubMed" v="Published literature" />
+          <Row k="ClinicalTrials.gov" v="Trial registrations and results" />
+          <Row k="openFDA" v="Label and adverse-event data" />
+          <Row k="WHO GHO" v="Country epidemiology indicators" />
+          <Row k="World Bank" v="Population and health expenditure" />
+        </div>
+        <div className="runbook-say">
+          <span>Say</span>
+          <p>
+            Search a term, read the results, and add the relevant ones to the evidence
+            workspace. Where an AI key is configured it also summarises each result — but
+            only from the retrieved text, and it is explicitly barred from changing any BIA
+            input or calculation. Search works with no database configured; records simply
+            are not kept between sessions.
+          </p>
+        </div>
+
+        <h3 className="runbook-h3">The assistant</h3>
+        <p className="runbook-why">
+          The robot button, bottom right. It answers questions about the model currently on
+          screen — what PMPM means, why the break-even price is what it is, how uptake feeds
+          the result — using your actual numbers rather than generic definitions.
+        </p>
+        <div className="runbook-say">
+          <span>Say</span>
+          <p>
+            With no AI key configured it still answers from a built-in set covering the
+            common budget-impact concepts, so the demo never depends on a network call. With
+            a key it answers freely, and the badge in its header shows which mode it is in.
+            It explains the model; it does not change it.
+          </p>
+        </div>
       </div>
     </dialog>
   );

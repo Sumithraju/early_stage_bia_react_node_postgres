@@ -643,3 +643,12 @@ th.run-current { color: var(--brand); }
   .runbook-row { grid-template-columns: 1fr; gap: 2px; }
   .runbook-row span:last-child { text-align: left; }
 }
+.runbook-defs { margin: 12px 0 0; font-size: 13px; }
+.runbook-defs dt {
+  margin-top: 11px; font-weight: 650; color: var(--ink); font-size: 13px;
+}
+.runbook-defs dt:first-child { margin-top: 0; }
+.runbook-defs dd {
+  margin: 3px 0 0; padding-left: 13px; line-height: 1.55; color: var(--ink-2);
+  border-left: 2px solid var(--border);
+}
