@@ -77,3 +77,24 @@ describe("warned — arithmetic is sound, the answer probably is not intended", 
       t.annualDrugCost = 0; t.annualAdminCost = 0; t.annualMonitoringCost = 0; t.annualDeviceCost = 0;
     })), /compared against free care/));
 });
+
+describe("incidence and prevalence growth together", () => {
+  it("warns without blocking when both are above zero", () => {
+    const m = model((x) => {
+      x.annualIncidence = 0.006;
+      x.annualPrevalenceGrowth = 0.02;
+    });
+    const v = validateModel(m);
+    expect(v.ok).toBe(true);
+    expect(v.warnings.some((w) => /double-count population growth/.test(w.message))).toBe(true);
+  });
+
+  it("stays quiet when only one mechanism is used", () => {
+    const quiet = (mutate) =>
+      validateModel(model(mutate)).warnings.some((w) => /double-count/.test(w.message));
+
+    expect(quiet((m) => { m.annualIncidence = 0.006; m.annualPrevalenceGrowth = 0; })).toBe(false);
+    expect(quiet((m) => { m.annualIncidence = 0; m.annualPrevalenceGrowth = 0.02; })).toBe(false);
+    expect(quiet((m) => { m.annualIncidence = 0; m.annualPrevalenceGrowth = 0; })).toBe(false);
+  });
+});

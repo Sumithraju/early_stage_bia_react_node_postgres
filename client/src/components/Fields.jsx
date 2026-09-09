@@ -25,16 +25,24 @@ export function NumberField({ label, hint, value, onChange, step = 1, min, max, 
   );
 }
 
-/** Stored 0-1, shown 0-100 so users type "25" for 25%. */
-export function PercentField({ label, hint, value, onChange, max = 100 }) {
+/**
+ * Stored 0-1, shown 0-100 so users type "25" for 25%. The storage convention
+ * does not change: 0.34675% on screen is 0.0034675 in the model.
+ *
+ * `decimals` only exists to suppress binary-float artefacts (0.0034675 * 100
+ * is 0.34675000000000005), so it is set well beyond any real input rather than
+ * used to round. At two decimals an epidemiological incidence of 0.34675%
+ * displayed as 0.35%, and anything below 0.005% displayed as 0%.
+ */
+export function PercentField({ label, hint, value, onChange, max = 100, step = 0.01, decimals = 6 }) {
   return (
     <div className="field">
       <label>{label}</label>
       <div className="input-wrap">
         <input
           type="number"
-          value={value === null || value === undefined ? "" : +(value * 100).toFixed(2)}
-          step="0.1"
+          value={value === null || value === undefined ? "" : +(value * 100).toFixed(decimals)}
+          step={step}
           min="0"
           max={max}
           onChange={(e) =>
