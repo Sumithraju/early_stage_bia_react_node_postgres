@@ -332,7 +332,7 @@ recoverable; one that returns a confident wrong number is not.
 
 ```bash
 # Unit tests over the calculation engine
-cd client && npx vitest run          # 14 tests
+cd client && npx vitest run          # 67 tests
 
 # Production build
 npm run build
@@ -342,7 +342,30 @@ env -u DATABASE_URL -u LLM_API_KEY node server/src/index.js
 curl localhost:4000/api/health
 ```
 
-### 8.4 Coverage gaps, stated plainly
+### 8.4 Literature validation
+
+Four published budget impact analyses are reproduced end to end from workbooks
+in `docs/validation/`, imported through the real `importWorkbook()` rather than
+a hand-built model object — the failure these guard was an import failure, and
+a model built inside the test would pass while the application was wrong.
+
+| Source | Benchmark | Published | BIET | Dev |
+| --- | --- | --- | --- | --- |
+| ISPOR Europe 2025, GLP-1 T2D India | semaglutide 5-yr spend | ₹3,447,884,379 | ₹3,447,884,379 | 0.000% |
+| JAMA Health Forum 2025, Medicare GLP-1 | 5-yr medication budget | $32.0B | $32.0B | 0.000% |
+| ISPOR 2026, Medicare pharmacy BIA | annual pharmacy budget | $2,498,114,254 | $2,497,728,240 | −0.015% |
+| PharmacoEconomics 2021, oral semaglutide | 5-yr incremental impact | $4,620,201 | $4,620,519 | +0.007% |
+
+Each is imported onto a mismatched disease default, so an inherited value fails
+the assertion instead of passing quietly. One test asserts the failure mode
+itself: with the T2D workbook's incidence row removed, the 2029 eligible pool
+goes to 7,844 against a published 5,044, and the double-counted-growth warning
+fires.
+
+The published figures come from each workbook's own Benchmark sheet and have
+not been independently re-checked against the papers.
+
+### 8.5 Coverage gaps, stated plainly
 
 We would rather name these than imply coverage we do not have.
 
