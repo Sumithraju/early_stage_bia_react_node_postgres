@@ -93,12 +93,20 @@ export async function exportReport(model, result) {
   // Executive recommendation, wrapped.
   const driver = s.biggestDriver;
   const offset = s.biggestOffset;
+  // Both are null when no category moves in that direction; see biaEngine.
+  const movement = driver
+    ? `Largest driver: ${driver.label.toLowerCase()} (${pdfShort(driver.diff, cur)})` +
+      `${offset ? `, offset by lower ${offset.label.toLowerCase()}` : ""}. `
+    : offset
+      ? `No cost component rises; the saving comes from lower ${offset.label.toLowerCase()} ` +
+        `(${pdfShort(offset.diff, cur)}). `
+      : "No cost component moves materially. ";
+
   const rec =
     `Recommendation: ${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
     `${model.perspective.toLowerCase()} budget by ${pdfShort(Math.abs(s.netBudgetImpactTotal), cur)} over ` +
-    `${model.timeHorizonYears} years (${pdfRate(s.averagePMPM, cur)} PMPM). Largest driver: ` +
-    `${driver.label.toLowerCase()} (${pdfShort(driver.diff, cur)})` +
-    `${offset && offset.diff < 0 ? `, offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
+    `${model.timeHorizonYears} years (${pdfRate(s.averagePMPM, cur)} PMPM). ` +
+    movement +
     `Validate price and uptake assumptions before reimbursement planning.`;
   doc.setFontSize(9);
   doc.setTextColor(...INK);

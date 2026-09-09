@@ -402,10 +402,16 @@ export function calculateBudgetImpact(input) {
   };
 
   // Decision intelligence: which category adds the most, which offsets the most.
-  const biggestDriver = [...categories].sort((a, b) => b.diff - a.diff)[0];
-  const biggestOffset = [...categories].sort((a, b) => a.diff - b.diff)[0];
-  summary.biggestDriver = biggestDriver;
-  summary.biggestOffset = biggestOffset;
+  // A category has to actually move to qualify. Sorting alone crowned whichever
+  // category sorted first when nothing rose -- with drug acquisition falling and
+  // every other category flat, that reported "largest driver: Administration,
+  // +0". Either side is null when no category moves in that direction; callers
+  // must handle it.
+  const MOVED = 1e-6;
+  const rises = categories.filter((x) => x.diff > MOVED);
+  const falls = categories.filter((x) => x.diff < -MOVED);
+  summary.biggestDriver = rises.length ? rises.reduce((a, b) => (b.diff > a.diff ? b : a)) : null;
+  summary.biggestOffset = falls.length ? falls.reduce((a, b) => (b.diff < a.diff ? b : a)) : null;
 
   return {
     summary,

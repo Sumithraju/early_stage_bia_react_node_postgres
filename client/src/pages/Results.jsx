@@ -608,12 +608,20 @@ function DecisionSummary({ model, result, mostSensitive, onExport, exporting, on
   const driver = s.biggestDriver;
   const offset = s.biggestOffset;
 
+  // Either side is null when no cost category moves that way, which is the
+  // normal shape of a cost-saving result.
+  const movement = driver
+    ? `The largest driver is ${driver.label.toLowerCase()}` +
+      `${offset ? `, partly offset by lower ${offset.label.toLowerCase()}` : ""}. `
+    : offset
+      ? `No cost component rises; the saving comes from lower ${offset.label.toLowerCase()}. `
+      : "No cost component moves materially. ";
+
   const rec =
     `${model.newIntervention.treatmentName} ${increases ? "raises" : "lowers"} the ` +
     `${model.perspective.toLowerCase()} budget by ${moneyShort(Math.abs(s.netBudgetImpactTotal), cur)} ` +
     `over ${model.timeHorizonYears} years (${moneyRate(s.averagePMPM, cur)} PMPM). ` +
-    `The largest driver is ${driver.label.toLowerCase()}` +
-    `${offset && offset.diff < 0 ? `, partly offset by lower ${offset.label.toLowerCase()}` : ""}. ` +
+    movement +
     `The result is most sensitive to ${mostSensitive ? mostSensitive.label.toLowerCase() : "the price and uptake assumptions"} — ` +
     `validate that before reimbursement planning.`;
 
@@ -621,8 +629,10 @@ function DecisionSummary({ model, result, mostSensitive, onExport, exporting, on
     [`${model.timeHorizonYears}-year net budget impact`, moneyShort(s.netBudgetImpactTotal, cur), increases ? "neg" : "pos"],
     ["Average PMPM", moneyRate(s.averagePMPM, cur)],
     ["Patients on new therapy", count(s.peakTreatedPatients, cur)],
-    ["Largest cost driver", driver.label, null, `+${moneyShort(driver.diff, cur)}`],
-    ["Largest offset", offset.label, null, moneyShort(offset.diff, cur)],
+    ["Largest cost driver", driver ? driver.label : "None",
+      null, driver ? `+${moneyShort(driver.diff, cur)}` : "No added-cost component"],
+    ["Largest offset", offset ? offset.label : "None",
+      null, offset ? moneyShort(offset.diff, cur) : "No offsetting component"],
     ["Most sensitive assumption", mostSensitive ? mostSensitive.label : "—"],
   ];
 

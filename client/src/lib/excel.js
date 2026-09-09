@@ -24,18 +24,23 @@ const KV_SHEETS = {
     ["timeHorizonYears", "Time horizon (years)"],
   ],
   Population: [
-    ["coveredPopulation", "Covered population"],
+    ["coveredPopulation", ["Covered population", "Covered lives", "Population"]],
     ["ageMin", "Age minimum"],
     ["ageMax", "Age maximum"],
     ["annualPopulationGrowth", "Annual population growth"],
-    ["prevalence", "Obesity prevalence"],
-    ["annualPrevalenceGrowth", "Annual prevalence growth"],
-    ["diagnosisRate", "Diagnosed share"],
+    // The template writes the obesity spelling, but a workbook built for
+    // another disease names its own prevalence row. Accept the alternatives:
+    // an unmatched label silently keeps the previous disease's default, which
+    // is indistinguishable from a successful import.
+    ["prevalence", ["Obesity prevalence", "Prevalence", "Initial prevalence", "Disease prevalence"]],
+    ["annualPrevalenceGrowth", ["Annual prevalence growth", "Prevalence growth"]],
+    ["annualIncidence", ["Annual incidence", "Incidence"]],
+    ["diagnosisRate", ["Diagnosed share", "Diagnosis", "Diagnosis rate", "Diagnosed"]],
     ["bmiThreshold", "BMI threshold"],
-    ["clinicalEligibility", "Clinical eligibility"],
-    ["payerEligibility", "Payer eligibility"],
-    ["accessRate", "Access rate"],
-    ["willingnessRate", "Willingness to treat"],
+    ["clinicalEligibility", ["Clinical eligibility", "Clinically eligible"]],
+    ["payerEligibility", ["Payer eligibility", "Payer eligible"]],
+    ["accessRate", ["Access rate", "Access", "Able to access"]],
+    ["willingnessRate", ["Willingness to treat", "Willingness", "Willing to treat"]],
   ],
   Behaviour: [
     ["expectedWeightLossPct", "Expected weight loss"],
@@ -50,10 +55,29 @@ const TREATMENT_COLUMNS = [
   ["annualDrugCost", "Annual drug cost"],
   ["annualAdminCost", "Annual admin cost"],
   ["annualMonitoringCost", "Annual monitoring cost"],
+  ["annualDeviceCost", "Annual device cost"],
   ["adherence", "Adherence"],
   ["persistence", "Persistence"],
   ["discontinuation", "Discontinuation"],
 ];
+
+/**
+ * Every field the cost arithmetic reads. An imported treatment row starts from
+ * these and not from the row it replaces: a workbook that omits device cost
+ * must give 0, not the previous disease's insulin-pen cost.
+ */
+const TREATMENT_DEFAULTS = {
+  annualDrugCost: 0,
+  annualAdminCost: 0,
+  annualMonitoringCost: 0,
+  annualDeviceCost: 0,
+  adherence: 1,
+  persistence: 1,
+  discontinuation: 0,
+};
+
+/** A spec label may carry aliases; the first is the one the template writes. */
+const labelsOf = (label) => (Array.isArray(label) ? label : [label]);
 
 const OUTCOME_COLUMNS = [
   ["outcomeName", "Outcome"],
@@ -69,8 +93,12 @@ function sheetToRows(XLSX, wb, name) {
 
 function numeric(value) {
   if (value === null || value === undefined || value === "") return null;
-  const n = Number(String(value).replace(/[,%\s₹$]/g, ""));
-  return Number.isFinite(n) ? n : null;
+  const text = String(value).trim();
+  const n = Number(text.replace(/[,%\s₹$]/g, ""));
+  if (!Number.isFinite(n)) return null;
+  // A numeric cell formatted as a percentage arrives already divided, but a
+  // text cell keeps its sign: "0.35%" is 0.0035, not 0.35.
+  return text.endsWith("%") ? n / 100 : n;
 }
 
 function readKeyValueSheet(XLSX, wb, sheetName, spec, target) {
@@ -85,7 +113,11 @@ function readKeyValueSheet(XLSX, wb, sheetName, spec, target) {
 
   let applied = 0;
   for (const [key, label] of spec) {
-    const raw = byLabel.get(label.toLowerCase());
+    let raw;
+    for (const alias of labelsOf(label)) {
+      raw = byLabel.get(alias.toLowerCase());
+      if (raw !== undefined && raw !== null && raw !== "") break;
+    }
     if (raw === undefined || raw === null || raw === "") continue;
 
     const asNumber = numeric(raw);
@@ -103,7 +135,12 @@ function readTable(XLSX, wb, sheetName, columns) {
     .map((row) => {
       const out = {};
       for (const [key, label] of columns) {
-        const raw = row[label] ?? row[key];
+        let raw;
+        for (const alias of labelsOf(label)) {
+          raw = row[alias];
+          if (raw !== undefined && raw !== null && raw !== "") break;
+        }
+        raw = raw ?? row[key];
         if (raw === undefined || raw === null || raw === "") continue;
         const asNumber = numeric(raw);
         out[key] = key.endsWith("Name") ? String(raw) : asNumber ?? String(raw);
@@ -134,8 +171,11 @@ export async function importWorkbook(file, currentModel) {
   const comparators = readTable(XLSX, wb, "Comparators", TREATMENT_COLUMNS);
   if (comparators?.length) {
     model.currentTreatments = comparators.map((row, i) => ({
-      ...(currentModel.currentTreatments[i] || {}),
-      treatmentCode: currentModel.currentTreatments[i]?.treatmentCode || `CMP_${i + 1}`,
+      treatmentCode: currentModel.currentTreatments?.[i]?.treatmentCode || `CMP_${i + 1}`,
+      treatmentName: `Comparator ${i + 1}`,
+      ...TREATMENT_DEFAULTS,
+      marketShare: 0, // comparators only: an intervention has no share of its own
+
       ...row,
     }));
     applied += comparators.length;
@@ -143,7 +183,12 @@ export async function importWorkbook(file, currentModel) {
 
   const intervention = readTable(XLSX, wb, "NewIntervention", TREATMENT_COLUMNS);
   if (intervention?.length) {
-    model.newIntervention = { ...currentModel.newIntervention, ...intervention[0] };
+    model.newIntervention = {
+      treatmentCode: currentModel.newIntervention?.treatmentCode || "NEW_DRUG",
+      treatmentName: currentModel.newIntervention?.treatmentName || "New intervention",
+      ...TREATMENT_DEFAULTS,
+      ...intervention[0],
+    };
     applied += 1;
   }
 
@@ -185,13 +230,13 @@ export async function downloadTemplate(model) {
   const wb = XLSX.utils.book_new();
 
   for (const [sheetName, spec] of Object.entries(KV_SHEETS)) {
-    const rows = spec.map(([key, label]) => ({ field: label, value: model[key] ?? "" }));
+    const rows = spec.map(([key, label]) => ({ field: labelsOf(label)[0], value: model[key] ?? "" }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), sheetName);
   }
 
   const treatmentRows = (list) =>
     list.map((t) =>
-      Object.fromEntries(TREATMENT_COLUMNS.map(([key, label]) => [label, t[key] ?? 0]))
+      Object.fromEntries(TREATMENT_COLUMNS.map(([key, label]) => [labelsOf(label)[0], t[key] ?? 0]))
     );
 
   XLSX.utils.book_append_sheet(
@@ -215,7 +260,7 @@ export async function downloadTemplate(model) {
     wb,
     XLSX.utils.json_to_sheet(
       model.outcomes.map((o) =>
-        Object.fromEntries(OUTCOME_COLUMNS.map(([key, label]) => [label, o[key] ?? 0]))
+        Object.fromEntries(OUTCOME_COLUMNS.map(([key, label]) => [labelsOf(label)[0], o[key] ?? 0]))
       )
     ),
     "Outcomes"

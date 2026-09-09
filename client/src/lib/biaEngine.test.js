@@ -145,3 +145,43 @@ describe("sensitivity tornado", () => {
     }
   });
 });
+
+describe("largest cost driver", () => {
+  /** Only drug acquisition moves, and it moves down: a pure-saving result. */
+  const savingModel = () =>
+    baseModel({
+      currentTreatments: [
+        { treatmentCode: "CUR", treatmentName: "Current", marketShare: 1, annualDrugCost: 500, annualAdminCost: 0, annualMonitoringCost: 0, annualDeviceCost: 0, adherence: 1, persistence: 1 },
+      ],
+    });
+
+  it("is null when no category adds cost, rather than a zero-difference category", () => {
+    const { summary, comparison } = calculateBudgetImpact(savingModel());
+
+    // Every non-drug category is flat, so sorting alone used to crown one of
+    // them "largest driver" and print "+0".
+    expect(comparison.categories.every((c) => c.diff <= 0)).toBe(true);
+    expect(summary.biggestDriver).toBeNull();
+  });
+
+  it("still names the category doing the offsetting", () => {
+    const { summary } = calculateBudgetImpact(savingModel());
+    expect(summary.biggestOffset.key).toBe("drug");
+    expect(summary.biggestOffset.diff).toBeLessThan(0);
+  });
+
+  it("is null on both sides when nothing moves at all", () => {
+    const flat = baseModel({
+      newIntervention: { treatmentCode: "NEW", treatmentName: "New", annualDrugCost: 0, annualAdminCost: 0, annualMonitoringCost: 0, annualDeviceCost: 0, adherence: 1, persistence: 1 },
+    });
+    const { summary } = calculateBudgetImpact(flat);
+    expect(summary.biggestDriver).toBeNull();
+    expect(summary.biggestOffset).toBeNull();
+  });
+
+  it("names the rising category when the drug does add cost", () => {
+    const { summary } = calculateBudgetImpact(baseModel());
+    expect(summary.biggestDriver.key).toBe("drug");
+    expect(summary.biggestDriver.diff).toBeGreaterThan(0);
+  });
+});

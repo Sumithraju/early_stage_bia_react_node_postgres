@@ -89,6 +89,15 @@ export function validateModel(model) {
     }
   }
 
+  // project() applies prevalence growth and incidence as two separate terms:
+  // prevalence * (1 + growth)^(y-1) + incidence * (y-1). Both are legitimate,
+  // but a source that reports one already inside the other is double-counted.
+  if (isNum(model.annualIncidence) && n(model.annualIncidence) > 0 &&
+      isNum(model.annualPrevalenceGrowth) && n(model.annualPrevalenceGrowth) > 0) {
+    warn("annualIncidence",
+      "Both annual incidence and annual prevalence growth are above 0%. The model applies both, which may double-count population growth. Use both only when the evidence source explicitly models them separately.");
+  }
+
   /* ---------------- comparators ---------------- */
 
   const current = Array.isArray(model.currentTreatments) ? model.currentTreatments : [];
