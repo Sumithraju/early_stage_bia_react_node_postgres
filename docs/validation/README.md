@@ -1,6 +1,6 @@
 # Literature validation set
 
-Published budget impact analyses reproduced in BIET, used as regression tests
+Four published budget impact analyses reproduced in BIET, used as regression tests
 against `client/src/lib/literatureValidation.test.js`. The tests import these
 workbooks through the real `importWorkbook()` rather than building a model
 object, because the failure they guard was an import failure: the engine
@@ -52,6 +52,63 @@ model. Cumulative medication expenditure, in billions:
 | Published | 11.3 | 16.0 | 21.2 | 26.5 | 32.0 |
 | BIET | 11.3 | 16.0 | 21.2 | 26.5 | 32.0 |
 
+### 3. Expanding Medicare GLP-1 coverage for obesity, ISPOR 2026
+
+`BIET_Validation_Obesity_Medicare_GLP1_ISPOR_2026.xlsx`
+
+*Pharmacy Budget Impact of Expanding Medicare Coverage for GLP-1 Receptor
+Agonists in the Treatment of Obesity under Alternative Pricing Scenarios.*
+ISPOR 2026, poster session 2-4.
+
+69M Medicare beneficiaries, 7% target prevalence, 10% first-year uptake, one
+year, USD. Pharmacy spend only — the source study excludes downstream medical
+offsets, so the Outcomes sheet is deliberately inert.
+
+| | Published | BIET |
+| --- | --- | --- |
+| Eligible patients | 4,830,000 | 4,830,000 |
+| Patients treated | 483,000 | 483,000 |
+| Annual pharmacy budget | $2,498,114,254 | $2,497,728,240 (−0.015%) |
+| PMPM | $3.02 | $3.0166 |
+| PPPM | $431.01 | $430.94 |
+
+### 4. Oral semaglutide vs sitagliptin, US, 2021
+
+`BIET_Validation_T2D_OralSemaglutide_vs_Sitagliptin_US_2021.xlsx`
+
+Wehler E et al. *Budget Impact of Oral Semaglutide Intensification versus
+Sitagliptin among US Patients with Type 2 Diabetes Mellitus Uncontrolled with
+Metformin.* PharmacoEconomics. doi:10.1007/s40273-020-00967-7
+
+1-million-life private plan, five years, USD. The cohort is a fixed 1,993
+current sitagliptin users, so prevalence here is an already-sized target share
+rather than epidemiology, and there is no incidence term. The published
+five-year per-patient direct-care cost is annualised into the treatment-cost
+field so the clinical outcomes are not counted a second time.
+
+| | Published | BIET |
+| --- | --- | --- |
+| Target population | 1,993 | 1,993 |
+| Oral semaglutide patients | 279 | 279 |
+| 5-year current care | $46,698,940 | $46,707,948 (+0.019%) |
+| 5-year with intervention | $51,319,140 | $51,328,467 (+0.018%) |
+| **Incremental impact** | **$4,620,201** | **$4,620,519 (+0.007%)** |
+| Average PMPM | $0.08 | $0.0770, rounds to $0.08 |
+
+---
+
+## What these tests do and do not prove
+
+They prove that BIET, fed each workbook through the real importer, reproduces
+the benchmark **recorded on that workbook's own Benchmark or Evidence sheet**,
+and that no value leaks in from the previously loaded disease — each case is
+imported onto a deliberately wrong default to force that.
+
+They do not independently verify the published figures against the papers. The
+sandbox these tests were built in can reach GitHub and nothing else, so the
+citations were taken as given. Anyone presenting these numbers should check the
+Benchmark sheet against the source before quoting it.
+
 ---
 
 ## Workbook format
@@ -73,7 +130,7 @@ and `KV_SHEETS` / `TREATMENT_COLUMNS` there is the authoritative label list.
 
 ### Always state annual incidence explicitly
 
-Both workbooks here were originally built from a template that predated the
+The first two workbooks here were built from a template that predated the
 incidence mapping, so neither mentioned the field. `importWorkbook()` treats a
 partial workbook as a partial update, so the field silently kept whatever the
 previously loaded disease had.

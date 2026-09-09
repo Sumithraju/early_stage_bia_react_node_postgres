@@ -6,7 +6,7 @@ import { validateModel } from "../../../shared/modelValidation.js";
 import { defaultModelFor } from "./diseases.js";
 
 /**
- * Literature validation against the two benchmark workbooks in docs/validation.
+ * Literature validation against the benchmark workbooks in docs/validation.
  *
  * These run the real files through the real importer rather than a hand-built
  * model, because the bug they guard was never in the arithmetic. The engine
@@ -14,7 +14,7 @@ import { defaultModelFor } from "./diseases.js";
  * population silently stayed on the previous disease's defaults. A test built
  * from a model object would have passed while the application was wrong.
  *
- * Both workbooks were regenerated with an explicit "Annual incidence" row.
+ * Every workbook here states "Annual incidence" explicitly.
  * Without it the field is not mentioned anywhere in the sheet, so the importer
  * — which treats a partial workbook as a partial update — leaves the previous
  * disease's incidence in place. On the T2D file that stacked a 0.7% incidence
@@ -192,5 +192,124 @@ describe("JAMA 2025 · Medicare GLP-1 coverage", () => {
     // Current care in this reconstruction is lifestyle modification at no cost,
     // so the whole medication budget is the net impact.
     expect(summary.currentCostTotal).toBe(0);
+  });
+});
+
+/* ------------------------------------------------- Medicare GLP-1, ISPOR 2026 */
+/**
+ * Pharmacy Budget Impact of Expanding Medicare Coverage for GLP-1 Receptor
+ * Agonists in the Treatment of Obesity under Alternative Pricing Scenarios.
+ * ISPOR 2026, poster session 2-4.
+ *
+ * A one-year pharmacy-only budget impact: 69M Medicare beneficiaries, 7% target
+ * prevalence, 10% first-year uptake, and a blended GLP-1 price across the
+ * published therapy mix. Downstream medical offsets are deliberately absent
+ * because the source study excludes them.
+ *
+ * The published figures below are those recorded on the workbook's own
+ * Benchmark sheet. They have not been checked against the poster itself.
+ */
+const ISPOR26 = "BIET_Validation_Obesity_Medicare_GLP1_ISPOR_2026.xlsx";
+
+describe("ISPOR 2026 · Medicare GLP-1 coverage for obesity", () => {
+  it("imports the Medicare denominator without inheriting a T2D funnel", async () => {
+    const { model } = await load(ISPOR26, "T2D");
+    expect(model.coveredPopulation).toBe(69_000_000);
+    expect(model.prevalence).toBeCloseTo(0.07, 12);
+    expect(model.annualIncidence).toBe(0);
+    expect(model.annualPrevalenceGrowth).toBe(0);
+    expect(model.timeHorizonYears).toBe(1);
+    expect(model.currency).toBe("USD");
+    for (const k of ["diagnosisRate", "clinicalEligibility", "payerEligibility", "accessRate", "willingnessRate"]) {
+      expect(model[k]).toBe(1);
+    }
+  });
+
+  it("reproduces the published pharmacy budget, PMPM and PPPM", async () => {
+    const { model } = await load(ISPOR26, "T2D");
+    const { summary } = calculateBudgetImpact(model);
+
+    expect(summary.year1EligiblePatients).toBeCloseTo(4_830_000, 3);
+    expect(summary.peakTreatedPatients).toBeCloseTo(483_000, 3);
+
+    // Published: $2,498,114,254 · $3.02 PMPM · $431.01 PPPM. The blended price
+    // in the workbook is a hair under the poster's, so allow 0.05%.
+    within(summary.newCostTotal, 2_498_114_254, 5e-4);
+    expect(summary.year1PMPM).toBeCloseTo(3.02, 2);
+    within(summary.year1PPPM, 431.01, 5e-4);
+
+    // Against the workbook's own arithmetic, exact.
+    within(summary.newCostTotal, 2_497_728_240, 1e-9);
+    within(summary.year1PPPM, 430.94, 1e-6);
+  });
+
+  it("shows the drug bill as the driver, with nothing offsetting it", async () => {
+    const { model } = await load(ISPOR26, "T2D");
+    const { summary } = calculateBudgetImpact(model);
+    expect(summary.biggestDriver.key).toBe("drug");
+    expect(summary.biggestOffset).toBeNull();
+  });
+});
+
+/* --------------------------------- Oral semaglutide vs sitagliptin, US 2021 */
+/**
+ * Wehler E et al. Budget Impact of Oral Semaglutide Intensification versus
+ * Sitagliptin among US Patients with Type 2 Diabetes Mellitus Uncontrolled with
+ * Metformin. PharmacoEconomics. doi:10.1007/s40273-020-00967-7
+ *
+ * A 1-million-life plan with a fixed cohort of 1,993 current sitagliptin users,
+ * so prevalence here is an already-sized target share rather than population
+ * epidemiology, and there is no incidence term. The published five-year total
+ * direct-care cost per patient is annualised into the treatment-cost field, so
+ * the clinical outcomes stay in Evidence rather than being counted twice.
+ *
+ * As above, the published figures are the workbook's, unverified against the
+ * paper from this environment.
+ */
+const WEHLER = "BIET_Validation_T2D_OralSemaglutide_vs_Sitagliptin_US_2021.xlsx";
+
+describe("PharmacoEconomics 2021 · oral semaglutide vs sitagliptin", () => {
+  it("treats the cohort as an already-sized target, with no growth term", async () => {
+    const { model } = await load(WEHLER, "OBESITY");
+    expect(model.coveredPopulation).toBe(1_000_000);
+    expect(model.prevalence).toBeCloseTo(0.001993, 12);
+    expect(model.annualIncidence).toBe(0);
+    expect(model.annualPrevalenceGrowth).toBe(0);
+    expect(model.annualPopulationGrowth).toBe(0);
+    expect(model.timeHorizonYears).toBe(5);
+  });
+
+  it("keeps both pathway costs clean of obesity defaults", async () => {
+    const { model } = await load(WEHLER, "OBESITY");
+    const [sita] = model.currentTreatments;
+    expect(model.currentTreatments).toHaveLength(1);
+    expect(sita.annualDrugCost).toBeCloseTo(4687.2, 6);
+    expect(sita.marketShare).toBe(1);
+    expect(model.newIntervention.annualDrugCost).toBeCloseTo(7999.4, 6);
+    for (const row of [sita, model.newIntervention]) {
+      expect(row.annualAdminCost).toBe(0);
+      expect(row.annualMonitoringCost).toBe(0);
+      expect(row.annualDeviceCost).toBe(0);
+      expect(row.adherence).toBe(1);
+      expect(row.persistence).toBe(1);
+    }
+  });
+
+  it("reproduces the published five-year incremental budget impact", async () => {
+    const { model } = await load(WEHLER, "OBESITY");
+    const { summary } = calculateBudgetImpact(model);
+
+    expect(summary.year1EligiblePatients).toBeCloseTo(1993, 6);
+    expect(summary.peakTreatedPatients).toBeCloseTo(279, 1);
+
+    // Published: $46,698,940 → $51,319,140, incremental $4,620,201.
+    within(summary.currentCostTotal, 46_698_940, 5e-4);
+    within(summary.newCostTotal, 51_319_140, 5e-4);
+    within(summary.netBudgetImpactTotal, 4_620_201, 5e-4);
+
+    // The paper quotes $0.08 PMPM to two decimals; the underlying figure is
+    // $0.077, so assert the rounding rather than the printed value.
+    expect(summary.averagePMPM).toBeCloseTo(0.077, 3);
+    expect(+summary.averagePMPM.toFixed(2)).toBe(0.08);
   });
 });
