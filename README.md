@@ -6,7 +6,35 @@ A full-stack proof-of-concept for a disease-agnostic early-stage Budget Impact A
 **New here?** Start with the [demo guide](docs/demo/README.md) — a tab-by-tab
 walkthrough of the built-in scenario with screenshots, the inputs to enter, and
 the numbers you should see. For how the system is put together, see the
-[architecture and test documentation](docs/architecture.md).
+[architecture and test documentation](docs/architecture.md). For what the engine
+reproduces against published analyses, see the
+[literature validation set](docs/validation/README.md).
+
+---
+
+## Literature validation
+
+The engine is checked against four published budget impact analyses, spanning
+two therapy areas, three payer settings and two currencies. Each case is a real
+workbook in [`docs/validation/`](docs/validation/), imported through the same
+`importWorkbook()` path a user drives, and asserted in
+`client/src/lib/literatureValidation.test.js`.
+
+| Case | Source | Primary benchmark | Published | BIET |
+| --- | --- | --- | --- | --- |
+| GLP-1 RAs in T2D, India | ISPOR Europe 2025 · [doi:10.1016/j.jval.2025.09.469](https://doi.org/10.1016/j.jval.2025.09.469) | Semaglutide 5-yr spend | ₹3,447,884,379 | ₹3,447,884,379 |
+| Medicare GLP-1 coverage, US | JAMA Health Forum 2025 · [doi:10.1001/jamahealthforum.2025.0905](https://doi.org/10.1001/jamahealthforum.2025.0905) | 5-yr medication budget | $32.0B | $32.0B |
+| Medicare GLP-1 pharmacy BIA | ISPOR 2026, poster 2-4 | Annual pharmacy budget | $2,498,114,254 | $2,497,728,240 |
+| Oral semaglutide vs sitagliptin, US | PharmacoEconomics · [doi:10.1007/s40273-020-00967-7](https://doi.org/10.1007/s40273-020-00967-7) | 5-yr incremental impact | $4,620,201 | $4,620,519 |
+
+Largest deviation across the four is **0.02%**, and no published figure is
+written into the engine — each is computed from the workbook's inputs. Every
+case is imported onto a deliberately mismatched disease default, so a value
+inherited from the previous model fails the test rather than passing quietly.
+
+What this does **not** establish: the published figures were taken from each
+workbook's Benchmark sheet and have not been re-checked against the papers
+themselves. Verify against the source before quoting any of them.
 
 ### Main features
 
